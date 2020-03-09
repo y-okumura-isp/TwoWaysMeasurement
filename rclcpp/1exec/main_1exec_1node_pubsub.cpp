@@ -103,7 +103,7 @@ void PubSubNode::_report_jitter(const std::string name, const int bgn[], int num
     vec.push_back(bgn[i]);
   }
   std::cout << std::endl;
-  std::cout << "avg recv jitter: " << std::accumulate(vec.begin(), vec.end(), 0.0) / num_loop << std::endl;
+  std::cout << "avg jitter: " << std::accumulate(vec.begin(), vec.end(), 0.0) / num_loop << std::endl;
 }
 
 int main(int argc, char *argv[])
