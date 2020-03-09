@@ -39,8 +39,14 @@ set(OEON tw_oeon)
 add_executable(${OEON} 1exec/main_1exec_1node_pubsub.cpp)
 ament_target_dependencies(${OEON} rclcpp std_msgs)
 
+# one exec, two node
+set(OETN tw_oetn)
+add_executable(${OETN} 1exec/main_1exec_2node_pubsub.cpp)
+ament_target_dependencies(${OETN} rclcpp std_msgs)
+
 install(TARGETS
   ${OEON}
+  ${OETN}
   DESTINATION lib/${PROJECT_NAME})
 
 ament_package()
