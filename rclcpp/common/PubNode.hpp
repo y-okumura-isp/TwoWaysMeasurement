@@ -7,7 +7,7 @@
 #include "twmsgs/msg/data.hpp"
 #include "setting.h"
 
-class PubNode: public rclcpp::Node
+class PubNode : public rclcpp::Node
 {
   using _SC = std::chrono::system_clock;
   using TIME_POINT = std::chrono::time_point<std::chrono::system_clock>;
