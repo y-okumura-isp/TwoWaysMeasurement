@@ -6,7 +6,7 @@
 
 void print_result(const std::string name,
                   const int *jitters,
-                  int count, int max_count);
+                  int count, int max_count)
 {
   int num_loop = std::min(count, max_count);
   std::vector<int> vec;
@@ -16,5 +16,6 @@ void print_result(const std::string name,
     std::cout << jitters[i] << " ";
     vec.push_back(jitters[i]);
   }
+  std::cout << std::endl;
   std::cout << name << ": " << std::accumulate(vec.begin(), vec.end(), 0.0) / num_loop << std::endl;
 }

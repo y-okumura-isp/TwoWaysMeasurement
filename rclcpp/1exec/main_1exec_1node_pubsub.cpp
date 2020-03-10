@@ -6,6 +6,7 @@
 
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/string.hpp"
+#include "../common/tw_utils.hpp"
 
 using namespace std::chrono_literals;
 
@@ -65,49 +66,24 @@ public:
 
   void print_result() const;
 
-private:
   int count;
 
   TIME_POINT epoch;
   int wakeup_jitters[num_bin];
   int recv_jitters[num_bin];
 
+private:
   TIME_POINT time_send;
 
   rclcpp::TimerBase::SharedPtr timer;
   rclcpp::Publisher<std_msgs::msg::String>::SharedPtr pub_;
   rclcpp::Subscription<std_msgs::msg::String>::SharedPtr sub_;
-
-  void _report_jitter(const std::string name, const int *bgn, int num_loop) const;
 };
-
-void PubSubNode::print_result() const
-{
-  std::cout << "count: " << this->count << std::endl;
-  int num_loop = std::min(this->count, num_bin);
-
-  // print wakeup jitter
-  _report_jitter("wakeup_jitters", this->wakeup_jitters, num_loop);
-
-  // print wakeup jitter
-  _report_jitter("recv_jitters", this->recv_jitters, num_loop);
-}
-
-void PubSubNode::_report_jitter(const std::string name, const int bgn[], int num_loop) const
-{
-  std::vector<int> vec;
-  std::cout << name << std::endl;
-  // print wakeup jitter
-  for(int i=0; i<num_loop; i++) {
-    std::cout << bgn[i] << " ";
-    vec.push_back(bgn[i]);
-  }
-  std::cout << std::endl;
-  std::cout << "avg jitter: " << std::accumulate(vec.begin(), vec.end(), 0.0) / num_loop << std::endl;
-}
 
 int main(int argc, char *argv[])
 {
+  std::cout << "Press C-c to quit" << std::endl;
+
   rclcpp::init(argc, argv);
   rclcpp::executors::SingleThreadedExecutor exec;
 
@@ -120,7 +96,8 @@ int main(int argc, char *argv[])
   exec.spin();
   exec.remove_node(n);
 
-  n->print_result();
+  print_result("wakeup_jitters", n->wakeup_jitters, n->count, num_bin);
+  print_result("recv_jitters",   n->recv_jitters,   n->count, num_bin);
 
   rclcpp::shutdown();
 }

@@ -5,10 +5,11 @@
 
 #include "rclcpp/rclcpp.hpp"
 #include "twmsgs/msg/data.hpp"
+#include "setting.h"
 
 class SubNode : public rclcpp::Node
 {
-  using _SC = std::chrono::steady_clock;
+  using _SC = std::chrono::system_clock;
 
 public:
   SubNode(const rclcpp::NodeOptions & options)

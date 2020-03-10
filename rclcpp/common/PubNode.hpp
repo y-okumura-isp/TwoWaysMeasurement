@@ -9,8 +9,8 @@
 
 class PubNode: public rclcpp::Node
 {
-  using _SC = std::chrono::steady_clock;
-  using TIME_POINT = std::chrono::time_point<std::chrono::steady_clock>;
+  using _SC = std::chrono::system_clock;
+  using TIME_POINT = std::chrono::time_point<std::chrono::system_clock>;
 
 public:
   PubNode(const rclcpp::NodeOptions & options)

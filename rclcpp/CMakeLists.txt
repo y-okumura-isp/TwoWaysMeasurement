@@ -35,24 +35,39 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
+set(TW_COMMON
+  common/tw_utils.cpp
+  )
+
 set(DEPENDS
   rclcpp
   std_msgs
   twmsgs)
 
 # one exec, one node
-set(OEON tw_oeon)
-add_executable(${OEON} 1exec/main_1exec_1node_pubsub.cpp)
+set(OEON tw_1exec_1node)
+add_executable(${OEON} 1exec/main_1exec_1node_pubsub.cpp ${TW_COMMON})
 ament_target_dependencies(${OEON} ${DEPENDS})
 
 # one exec, two node
-set(OETN tw_oetn)
-add_executable(${OETN} 1exec/main_1exec_2node_pubsub.cpp)
+set(OETN tw_1exec_2node)
+add_executable(${OETN} 1exec/main_1exec_2node_pubsub.cpp ${TW_COMMON})
 ament_target_dependencies(${OETN} ${DEPENDS})
+
+# two exec, two node
+set(TEP tw_2exec_pub)
+add_executable(${TEP} 2exec/main_pub.cpp ${TW_COMMON})
+ament_target_dependencies(${TEP} ${DEPENDS})
+
+set(TES tw_2exec_sub)
+add_executable(${TES} 2exec/main_sub.cpp ${TW_COMMON})
+ament_target_dependencies(${TES} ${DEPENDS})
 
 install(TARGETS
   ${OEON}
   ${OETN}
+  ${TEP}
+  ${TES}
   DESTINATION lib/${PROJECT_NAME})
 
 ament_package()
