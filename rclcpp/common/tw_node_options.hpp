@@ -9,7 +9,7 @@ public:
         namespace_("ns"),
         topic_name("ping"),
         qos(10),
-        period_ns(100 * 1000 * 1000),
+        period_ns(10 * 1000 * 1000),
         num_bin(10000) {}
 
   const char * node_name_pub;
