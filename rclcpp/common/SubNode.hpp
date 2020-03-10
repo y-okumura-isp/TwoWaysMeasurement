@@ -5,34 +5,17 @@
 
 #include "rclcpp/rclcpp.hpp"
 #include "twmsgs/msg/data.hpp"
-#include "setting.h"
+#include "TwoWaysNode.hpp"
 
-class SubNode : public rclcpp::Node
+class SubNode : public TwoWaysNode
 {
-  using _SC = std::chrono::system_clock;
-
 public:
-  SubNode(const rclcpp::NodeOptions & options)
-      : Node(node_name_sub, options), count(0)
+  SubNode(const TwoWaysNodeOptions & tw_options = TwoWaysNodeOptions(),
+          const rclcpp::NodeOptions & options = rclcpp::NodeOptions())
+      : TwoWaysNode(tw_options.node_name_sub, tw_options.namespace_, tw_options, options)
   {
-    // sub
-    auto callback_sub =
-        [this](const twmsgs::msg::Data::SharedPtr msg) -> void
-        {
-          int now_ns = std::chrono::nanoseconds(_SC::now().time_since_epoch()).count();
-          this->recv_jitters[this->count % num_bin] = now_ns - msg->time_sent_ns;
-          this->count++;
-        };
-    sub_ = this->create_subscription<twmsgs::msg::Data>(topic_name, qos, callback_sub);
+    this->setup_ping_subscriber();
   }
-
-  // number of subscribe
-  int count;
-  // recent receive jitters
-  int recv_jitters[num_bin];
-
-private:
-  rclcpp::Subscription<twmsgs::msg::Data>::SharedPtr sub_;
 };
 
 #endif  // SUBNODE_HPP_

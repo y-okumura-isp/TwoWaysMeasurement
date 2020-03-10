@@ -37,6 +37,7 @@ endif()
 
 set(TW_COMMON
   common/tw_utils.cpp
+  common/TwoWaysNode.cpp
   )
 
 set(DEPENDS

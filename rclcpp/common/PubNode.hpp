@@ -5,8 +5,21 @@
 
 #include "rclcpp/rclcpp.hpp"
 #include "twmsgs/msg/data.hpp"
-#include "setting.h"
+#include "TwoWaysNode.hpp"
 
+class PubNode : public TwoWaysNode
+{
+public:
+  PubNode(const TwoWaysNodeOptions & tw_options,
+          const rclcpp::NodeOptions & options)
+      : TwoWaysNode(tw_options.node_name_pub, tw_options.namespace_, tw_options, options)
+  {
+    this->setup_ping_publisher();
+  }
+};
+
+
+/*
 class PubNode : public rclcpp::Node
 {
   using _SC = std::chrono::system_clock;
@@ -53,5 +66,5 @@ private:
   rclcpp::TimerBase::SharedPtr timer;
   rclcpp::Publisher<twmsgs::msg::Data>::SharedPtr pub_;
 };
-
+*/
 #endif  // PUBNODE_HPP_
