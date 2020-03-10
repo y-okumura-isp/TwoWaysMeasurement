@@ -5,7 +5,7 @@
 #include <numeric>
 
 #include "rclcpp/rclcpp.hpp"
-#include "std_msgs/msg/string.hpp"
+#include "twmsgs/msg/data.hpp"
 
 using namespace std::chrono_literals;
 
@@ -29,7 +29,7 @@ public:
       : Node(node_name_pub, options), count(0)
   {
     // pub
-    pub_ = this->create_publisher<std_msgs::msg::String>(topic_name, qos);
+    pub_ = this->create_publisher<twmsgs::msg::Data>(topic_name, qos);
     auto callback_pub =
         [this]() -> void
         {
@@ -41,12 +41,12 @@ public:
           this->wakeup_jitters[this->count % num_bin] = diff.count();
 
           // pub
-          std_msgs::msg::String msg;
+          twmsgs::msg::Data msg;
           msg.data = "HelloWorld" + std::to_string(this->count);
-          // std::cout << "send: " < msg.data.c_str() << std::endl;
-          this->count++;
-          time_send = _SC::now();
+          msg.time_sent_ns = std::chrono::nanoseconds(_SC::now().time_since_epoch()).count();
           pub_->publish(msg);
+
+          this->count++;
         };
 
     // set timer
@@ -61,7 +61,7 @@ private:
   TIME_POINT epoch;
 
   rclcpp::TimerBase::SharedPtr timer;
-  rclcpp::Publisher<std_msgs::msg::String>::SharedPtr pub_;
+  rclcpp::Publisher<twmsgs::msg::Data>::SharedPtr pub_;
 
   void _report_jitter(const std::string name, const int *bgn, int num_loop) const;
 };
@@ -74,16 +74,13 @@ public:
   {
     // sub
     auto callback_sub =
-        [this](const std_msgs::msg::String::SharedPtr msg) -> void
+        [this](const twmsgs::msg::Data::SharedPtr msg) -> void
         {
-          (void)msg;
-
-          auto now = _SC::now();
-          auto diff = std::chrono::duration_cast<std::chrono::nanoseconds>(now - time_send);
-          this->recv_jitters[this->count % num_bin] = diff.count();
+          int now_ns = std::chrono::nanoseconds(_SC::now().time_since_epoch()).count();
+          this->recv_jitters[this->count % num_bin] = now_ns - msg->time_sent_ns;
           this->count++;
         };
-    sub_ = this->create_subscription<std_msgs::msg::String>(topic_name, qos, callback_sub);
+    sub_ = this->create_subscription<twmsgs::msg::Data>(topic_name, qos, callback_sub);
   }
 
   void print_result() const;
@@ -91,7 +88,7 @@ public:
   int recv_jitters[num_bin];
 
 private:
-  rclcpp::Subscription<std_msgs::msg::String>::SharedPtr sub_;
+  rclcpp::Subscription<twmsgs::msg::Data>::SharedPtr sub_;
   int count;
 };
 

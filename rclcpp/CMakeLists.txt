@@ -19,6 +19,7 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(twmsgs REQUIRED)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
@@ -34,15 +35,20 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
+set(DEPENDS
+  rclcpp
+  std_msgs
+  twmsgs)
+
 # one exec, one node
 set(OEON tw_oeon)
 add_executable(${OEON} 1exec/main_1exec_1node_pubsub.cpp)
-ament_target_dependencies(${OEON} rclcpp std_msgs)
+ament_target_dependencies(${OEON} ${DEPENDS})
 
 # one exec, two node
 set(OETN tw_oetn)
 add_executable(${OETN} 1exec/main_1exec_2node_pubsub.cpp)
-ament_target_dependencies(${OETN} rclcpp std_msgs)
+ament_target_dependencies(${OETN} ${DEPENDS})
 
 install(TARGETS
   ${OEON}
