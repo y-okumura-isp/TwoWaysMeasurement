@@ -6,7 +6,7 @@
 
 #include "rclcpp/rclcpp.hpp"
 #include "twmsgs/msg/data.hpp"
-#include "../common/SubNode.hpp"
+#include "../common/sub_node.hpp"
 #include "../common/tw_utils.hpp"
 
 int main(int argc, char *argv[])

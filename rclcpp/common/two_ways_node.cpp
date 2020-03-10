@@ -1,4 +1,4 @@
-#include "TwoWaysNode.hpp"
+#include "two_ways_node.hpp"
 
 void TwoWaysNode::setup_ping_publisher()
 {

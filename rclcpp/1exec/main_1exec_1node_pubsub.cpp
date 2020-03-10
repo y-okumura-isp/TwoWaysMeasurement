@@ -5,7 +5,7 @@
 #include <numeric>
 
 #include "rclcpp/rclcpp.hpp"
-#include "../common/TwoWaysNode.hpp"
+#include "../common/two_ways_node.hpp"
 #include "../common/tw_utils.hpp"
 
 const char * node_name = "one_node_pub_sub";

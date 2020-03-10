@@ -5,7 +5,7 @@
 
 #include "rclcpp/rclcpp.hpp"
 #include "twmsgs/msg/data.hpp"
-#include "TwoWaysNode.hpp"
+#include "two_ways_node.hpp"
 
 class SubNode : public TwoWaysNode
 {
