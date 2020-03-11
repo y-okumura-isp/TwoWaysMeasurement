@@ -1,6 +1,12 @@
 #ifndef SETTING_H_
 #define SETTING_H_
 
+struct JitterReportOptions
+{
+  int bin;
+  int round_ns;
+};
+
 class TwoWaysNodeOptions {
 public:
   TwoWaysNodeOptions()
@@ -9,8 +15,14 @@ public:
         namespace_("ns"),
         topic_name("ping"),
         qos(10),
-        period_ns(10 * 1000 * 1000),
-        num_bin(10000) {}
+        period_ns(10 * 1000 * 1000)
+  {
+    ping_wakeup.bin = 600;
+    ping_wakeup.round_ns = 1000;
+
+    ping_sub.bin = 600;
+    ping_sub.round_ns = 1000;
+  }
 
   const char * node_name_pub;
   const char * node_name_sub;
@@ -19,7 +31,8 @@ public:
   const int qos;
   // wake up period[ns]
   const int period_ns;
-  const int num_bin; // number of time reports.
+  JitterReportOptions ping_wakeup;
+  JitterReportOptions ping_sub;
 };
 
 #endif  /* SETTING_H_ */

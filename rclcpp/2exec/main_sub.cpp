@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
   exec.spin();
   exec.remove_node(nsub);
 
-  print_result("recv_jitters", nsub->ping_sub_jitters_, nsub->ping_sub_count_, tw_options.num_bin);
+  nsub->print_ping_sub_report();
 
   rclcpp::shutdown();
 }

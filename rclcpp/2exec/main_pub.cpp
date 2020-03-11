@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
   exec.spin();
   exec.remove_node(npub);
 
-  print_result("wakeup_jitters", npub->ping_wakeup_jitters_, npub->ping_pub_count_, tw_options.num_bin);
+  npub->print_ping_wakeup_report();
 
   rclcpp::shutdown();
 }

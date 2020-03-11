@@ -31,9 +31,8 @@ int main(int argc, char *argv[])
   exec.remove_node(nsub);
   exec.remove_node(npub);
 
-  auto num_bin = tw_options.num_bin;
-  print_result("wakeup_jitters", npub->ping_wakeup_jitters_, npub->ping_pub_count_, num_bin);
-  print_result("recv_jitters",   nsub->ping_sub_jitters_,    nsub->ping_sub_count_, num_bin);
+  npub->print_ping_wakeup_report();
+  nsub->print_ping_sub_report();
 
   rclcpp::shutdown();
 }

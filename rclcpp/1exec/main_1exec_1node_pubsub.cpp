@@ -40,9 +40,8 @@ int main(int argc, char *argv[])
   exec.spin();
   exec.remove_node(n);
 
-  auto num_bin = tw_options.num_bin;
-  print_result("wakeup_jitters", n->ping_wakeup_jitters_, n->ping_pub_count_, num_bin);
-  print_result("recv_jitters",   n->ping_sub_jitters_,    n->ping_sub_count_, num_bin);
+  n->print_ping_wakeup_report();
+  n->print_ping_sub_report();
 
   rclcpp::shutdown();
 }
