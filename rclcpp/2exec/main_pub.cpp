@@ -19,8 +19,7 @@ int main(int argc, char *argv[])
 
   TwoWaysNodeOptions tw_options;
   rclcpp::NodeOptions node_options;
-  // TODO: node_options.allocator = ...;
-  // TODO: node_options.use_intra_process_comms = ...;
+  tw_options.set_node_options(node_options);
   auto npub = std::make_shared<PubNode>(tw_options, node_options);
 
   exec.add_node(npub);
