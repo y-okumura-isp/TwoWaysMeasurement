@@ -28,16 +28,15 @@ int main(int argc, char *argv[])
   std::cout << "Press C-c to quit" << std::endl;
 
   rclcpp::init(argc, argv);
-  rclcpp::executors::SingleThreadedExecutor exec;
-
   TwoWaysNodeOptions tw_options;
+  auto exec = tw_options.get_executor();
   rclcpp::NodeOptions node_options;
   tw_options.set_node_options(node_options);
   auto n = std::make_shared<PubSubNode>(tw_options, node_options);
 
-  exec.add_node(n);
-  exec.spin();
-  exec.remove_node(n);
+  exec->add_node(n);
+  exec->spin();
+  exec->remove_node(n);
 
   n->print_ping_wakeup_report();
   n->print_ping_sub_report();

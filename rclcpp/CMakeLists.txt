@@ -20,6 +20,7 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(twmsgs REQUIRED)
+find_package(tlsf_cpp)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
@@ -43,7 +44,9 @@ set(TW_COMMON
 set(DEPENDS
   rclcpp
   std_msgs
-  twmsgs)
+  twmsgs
+  tlsf_cpp
+  )
 
 # one exec, one node
 set(OEON tw_1exec_1node)
