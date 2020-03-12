@@ -2,6 +2,7 @@
 #define SETTING_H_
 
 #include <rclcpp/rclcpp.hpp>
+#include <rclcpp/qos.hpp>
 
 struct JitterReportOptions
 {
@@ -39,7 +40,8 @@ public:
   const char * node_name_sub;
   const char * namespace_;
   const char * topic_name;
-  const int qos;
+  rclcpp::QoS qos = rclcpp::QoS(1).best_effort();
+
   // wake up period[ns]
   const int period_ns;
   JitterReportOptions ping_wakeup;
