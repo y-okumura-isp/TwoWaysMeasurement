@@ -31,6 +31,7 @@ public:
   const char * node_name_sub = "node_sub";
   const char * namespace_ = "ns";
   const char * topic_name = "ping";
+  const char * service_name = "ping";
   rclcpp::QoS qos = rclcpp::QoS(1).best_effort();
 
   // wake up period[ns]

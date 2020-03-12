@@ -41,6 +41,7 @@ set(TW_COMMON
   common/tw_utils.cpp
   common/two_ways_node.cpp
   common/tw_node_options.cpp
+  common/two_ways_service_node.cpp
   )
 
 set(DEPENDS
@@ -70,11 +71,29 @@ set(TES tw_2exec_sub)
 add_executable(${TES} 2exec/main_sub.cpp ${TW_COMMON})
 ament_target_dependencies(${TES} ${DEPENDS})
 
+# one exec, one node, service
+set(OEON_SRV tw_1exec_1node_srv)
+add_executable(${OEON_SRV} 1exec/main_1exec_1node_service.cpp ${TW_COMMON})
+ament_target_dependencies(${OEON_SRV} ${DEPENDS})
+
+# two exec, server
+set(TE_SERVER tw_2exec_server)
+add_executable(${TE_SERVER} 2exec/main_server.cpp ${TW_COMMON})
+ament_target_dependencies(${TE_SERVER} ${DEPENDS})
+
+# two exec, client
+set(TE_CLIENT tw_2exec_client)
+add_executable(${TE_CLIENT} 2exec/main_client.cpp ${TW_COMMON})
+ament_target_dependencies(${TE_CLIENT} ${DEPENDS})
+
 install(TARGETS
   ${OEON}
   ${OETN}
   ${TEP}
   ${TES}
+  ${OEON_SRV}
+  ${TE_SERVER}
+  ${TE_CLIENT}
   DESTINATION lib/${PROJECT_NAME})
 
 ament_package()
