@@ -1,2 +1,2 @@
 int32 time_sent_ns
-string data
+int32 data

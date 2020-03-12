@@ -1,14 +1,7 @@
 #ifndef SETTING_H_
 #define SETTING_H_
 
-#include <rclcpp/strategies/allocator_memory_strategy.hpp>
 #include <rclcpp/rclcpp.hpp>
-#include <tlsf_cpp/tlsf.hpp>
-
-using rclcpp::memory_strategies::allocator_memory_strategy::AllocatorMemoryStrategy;
-
-template<typename T = void>
-using TLSFAllocator = tlsf_heap_allocator<T>;
 
 struct JitterReportOptions
 {
@@ -26,6 +19,7 @@ public:
         qos(10),
         period_ns(10 * 1000 * 1000),
         use_tlsf_allocator(true),
+        use_message_pool_memory_strategy(true),
         use_intra_process_comms(false)
   {
     ping_wakeup.bin = 600;
@@ -35,23 +29,11 @@ public:
     ping_sub.round_ns = 1000;
   }
 
-  void set_node_options(rclcpp::NodeOptions & node_options)
-  {
-    node_options.use_intra_process_comms(use_intra_process_comms);
-  }
+  /// Init NodeOptions
+  void set_node_options(rclcpp::NodeOptions & node_options);
 
-  rclcpp::executor::Executor::SharedPtr get_executor()
-  {
-    rclcpp::executor::ExecutorArgs args;
-
-    if (use_tlsf_allocator) {
-      rclcpp::memory_strategy::MemoryStrategy::SharedPtr memory_strategy =
-        std::make_shared<AllocatorMemoryStrategy<TLSFAllocator<void>>>();
-      args.memory_strategy = memory_strategy;
-    }
-
-    return std::make_shared<rclcpp::executors::SingleThreadedExecutor>(args);
-  }
+  /// Get Executor
+  rclcpp::executor::Executor::SharedPtr get_executor();
 
   const char * node_name_pub;
   const char * node_name_sub;
@@ -66,6 +48,8 @@ public:
   // Options for rclcpp::Executor
   const bool use_tlsf_allocator;
 
+  // Options for rclcpp::Subscription
+  const bool use_message_pool_memory_strategy;
 
   // Options for rclcpp::Node
   const bool use_intra_process_comms;

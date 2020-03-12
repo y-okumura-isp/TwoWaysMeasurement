@@ -20,6 +20,7 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(twmsgs REQUIRED)
+find_package(rosidl_generator_cpp REQUIRED)
 find_package(tlsf_cpp)
 # uncomment the following section in order to fill in
 # further dependencies manually.
@@ -39,6 +40,7 @@ endif()
 set(TW_COMMON
   common/tw_utils.cpp
   common/two_ways_node.cpp
+  common/tw_node_options.cpp
   )
 
 set(DEPENDS
@@ -46,6 +48,7 @@ set(DEPENDS
   std_msgs
   twmsgs
   tlsf_cpp
+  rosidl_generator_cpp
   )
 
 # one exec, one node

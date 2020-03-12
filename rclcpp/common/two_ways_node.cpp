@@ -1,4 +1,8 @@
+#include <rosidl_generator_cpp/traits.hpp>
+#include <rclcpp/strategies/message_pool_memory_strategy.hpp>
 #include "two_ways_node.hpp"
+
+using rclcpp::strategies::message_pool_memory_strategy::MessagePoolMemoryStrategy;
 
 void TwoWaysNode::setup_ping_publisher()
 {
@@ -8,6 +12,7 @@ void TwoWaysNode::setup_ping_publisher()
 
   // pub
   this->ping_pub_ = this->create_publisher<twmsgs::msg::Data>(topic_name, qos);
+
   auto callback_pub =
       [this, period_ns]() -> void
       {
@@ -19,7 +24,8 @@ void TwoWaysNode::setup_ping_publisher()
 
         // pub
         twmsgs::msg::Data msg;
-        msg.data = "HelloWorld" + std::to_string(this->ping_pub_count_);
+        msg.data = this->ping_pub_count_;
+        // msg.data = "HelloWorld" + std::to_string(this->ping_pub_count_);
         msg.time_sent_ns = std::chrono::nanoseconds(_SC::now().time_since_epoch()).count();
         this->ping_pub_->publish(msg);
 
@@ -35,6 +41,7 @@ void TwoWaysNode::setup_ping_subscriber()
 {
   auto topic_name = this->tw_options_.topic_name;
   auto qos = this->tw_options_.qos;
+  rclcpp::SubscriptionOptions subscription_options;
 
   // sub
   auto callback_sub =
@@ -44,5 +51,16 @@ void TwoWaysNode::setup_ping_subscriber()
         ping_sub_report_.add(now_ns - msg->time_sent_ns);
         this->ping_sub_count_++;
       };
-  this->ping_sub_ = this->create_subscription<twmsgs::msg::Data>(topic_name, qos, callback_sub);
+  ping_sub_ =
+      this->create_subscription<twmsgs::msg::Data>(topic_name,
+                                                   qos,
+                                                   callback_sub,
+                                                   subscription_options);
+
+  if (tw_options_.use_message_pool_memory_strategy) {
+    auto data_msg_strategy =
+        std::make_shared<MessagePoolMemoryStrategy<twmsgs::msg::Data, 1>>();
+    ping_sub_->set_message_memory_strategy(data_msg_strategy);
+  }
+
 }
