@@ -14,11 +14,10 @@ class TwoWaysServiceNode : public rclcpp::Node
 
 public:
   TwoWaysServiceNode(
-      const std::string name,
-      const std::string namespace_,
-      const TwoWaysNodeOptions & tw_options = TwoWaysNodeOptions(),
-      const rclcpp::NodeOptions & options = rclcpp::NodeOptions())
-      : Node(name, namespace_, options), tw_options_(tw_options) {}
+      const std::string node_name,
+      const TwoWaysNodeOptions & tw_options,
+      const rclcpp::NodeOptions & options)
+      : Node(node_name, tw_options.namespace_, options), tw_options_(tw_options) {}
 
   bool setup_ping_client();
   bool setup_ping_service();

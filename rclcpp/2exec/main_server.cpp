@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
   auto exec = tw_options.get_executor();
   rclcpp::NodeOptions node_options;
   tw_options.set_node_options(node_options);
-  auto n = std::make_shared<TwoWaysServiceNode>("hogenode", "");
+  auto n = std::make_shared<TwoWaysServiceNode>(tw_options.node_name_sub, tw_options, node_options);
   if (!n->setup_ping_service()) {
      std::cerr << "cannot setup service" << std::endl;
   }

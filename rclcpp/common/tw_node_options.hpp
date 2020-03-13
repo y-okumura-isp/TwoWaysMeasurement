@@ -27,6 +27,7 @@ public:
   /// Get Executor
   rclcpp::executor::Executor::SharedPtr get_executor();
 
+  const char * node_name = "node";
   const char * node_name_pub = "node_pub";
   const char * node_name_sub = "node_sub";
   const char * namespace_ = "ns";

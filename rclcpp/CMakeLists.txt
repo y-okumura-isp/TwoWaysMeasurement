@@ -76,6 +76,11 @@ set(OEON_SRV tw_1exec_1node_srv)
 add_executable(${OEON_SRV} 1exec/main_1exec_1node_service.cpp ${TW_COMMON})
 ament_target_dependencies(${OEON_SRV} ${DEPENDS})
 
+# one exec, two node, service
+set(OETN_SRV tw_1exec_2node_srv)
+add_executable(${OETN_SRV} 1exec/main_1exec_2node_service.cpp ${TW_COMMON})
+ament_target_dependencies(${OETN_SRV} ${DEPENDS})
+
 # two exec, server
 set(TE_SERVER tw_2exec_server)
 add_executable(${TE_SERVER} 2exec/main_server.cpp ${TW_COMMON})
@@ -92,6 +97,7 @@ install(TARGETS
   ${TEP}
   ${TES}
   ${OEON_SRV}
+  ${OETN_SRV}
   ${TE_SERVER}
   ${TE_CLIENT}
   DESTINATION lib/${PROJECT_NAME})
