@@ -21,4 +21,6 @@ int main(int argc, char *argv[])
   exec->add_node(n);
   exec->spin();
   exec->remove_node(n);
+
+  n->print_ping_sub_report();
 }

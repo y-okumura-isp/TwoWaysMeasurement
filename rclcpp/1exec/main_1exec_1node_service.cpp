@@ -4,7 +4,6 @@
 #include "../common/tw_utils.hpp"
 #include "../common/two_ways_service_node.hpp"
 
-#if 1
 int main(int argc, char *argv[])
 {
   std::cout << "Press C-c to quit" << std::endl;
@@ -16,21 +15,27 @@ int main(int argc, char *argv[])
   rclcpp::NodeOptions node_options;
   tw_options.set_node_options(node_options);
 
-  auto n = std::make_shared<TwoWaysServiceNode>(tw_options.node_name, tw_options, node_options);
-  if (!n->setup_ping_service()) {
+  auto node = std::make_shared<TwoWaysServiceNode>(tw_options.node_name, tw_options, node_options);
+  if (!node->setup_ping_service()) {
      std::cerr << "cannot setup service" << std::endl;
   }
-  if (!n->setup_ping_client()) {
+  if (!node->setup_ping_client()) {
     std::cerr << "cannot setup client" << std::endl;
   }
 
-  exec->add_node(n);
+  exec->add_node(node);
   exec->spin();
-  exec->remove_node(n);
+  exec->remove_node(node);
+
+  std::cout << "fin" << std::endl;
+  node->print_ping_wakeup_report();
+  node->print_ping_sub_report();
+  node->print_pong_trans_report();
+  node->print_ping_pong_report();
 }
 
-#else   // Here is a minimum sample of server + (client + timer)
-
+// Here is a minimum sample of server + (client + timer)
+/*
 #include <chrono>
 using namespace std::chrono_literals;
 
@@ -93,5 +98,4 @@ int main(int argc, char *argv[])
   exec->spin();
   exec->remove_node(node);
 }
-
-#endif
+*/

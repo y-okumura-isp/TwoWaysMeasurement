@@ -14,6 +14,9 @@ class TwoWaysNodeOptions {
 public:
   TwoWaysNodeOptions()
   {
+    common_report_option.bin = 600;
+    common_report_option.round_ns = 1000;
+
     ping_wakeup.bin = 600;
     ping_wakeup.round_ns = 1000;
 
@@ -37,6 +40,7 @@ public:
 
   // wake up period[ns]
   const int period_ns = 10 * 1000 * 1000;
+  JitterReportOptions common_report_option;
   JitterReportOptions ping_wakeup;
   JitterReportOptions ping_sub;
 

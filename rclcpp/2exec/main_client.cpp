@@ -21,4 +21,8 @@ int main(int argc, char *argv[])
   exec->add_node(n);
   exec->spin();
   exec->remove_node(n);
+
+  n->print_ping_wakeup_report();
+  n->print_pong_trans_report();
+  n->print_ping_pong_report();
 }
