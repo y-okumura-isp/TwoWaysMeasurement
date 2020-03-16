@@ -1,6 +1,8 @@
 #ifndef SETTING_H_
 #define SETTING_H_
 
+#include <sched.h>
+
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp/qos.hpp>
 
@@ -29,6 +31,14 @@ public:
 
   /// Get Executor
   rclcpp::executor::Executor::SharedPtr get_executor();
+
+  /// Realtime settings
+  bool set_realtime_settings();
+
+  // scheduler
+  bool sets_realtime_settings = false;
+  size_t sched_priority = 98;
+  int sched_policy = SCHED_RR;
 
   const char * node_name = "node";
   const char * node_name_pub = "node_pub";

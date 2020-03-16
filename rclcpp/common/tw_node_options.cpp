@@ -1,3 +1,4 @@
+#include <rttest/rttest.h>
 #include <rclcpp/strategies/allocator_memory_strategy.hpp>
 #include <tlsf_cpp/tlsf.hpp>
 #include "tw_node_options.hpp"
@@ -25,3 +26,25 @@ rclcpp::executor::Executor::SharedPtr TwoWaysNodeOptions::get_executor()
   return std::make_shared<rclcpp::executors::SingleThreadedExecutor>(args);
 }
 
+bool TwoWaysNodeOptions::set_realtime_settings()
+{
+  if (!sets_realtime_settings) {
+    return true;
+  }
+
+  // scheduler
+  if (rttest_set_sched_priority(sched_priority,
+                                sched_policy) != 0) {
+    std::cerr << "Couldn't set scheduling priority and policy" << std::endl;
+    return false;
+  }
+
+  // malloc
+  if (rttest_lock_and_prefault_dynamic() != 0) {
+    std::cerr << "Couldn't lock all cached virtual memory.\n";
+    std::cerr << "Pagefaults from reading pages not yet mapped into RAM will be recorded.\n";
+    return false;
+  }
+
+  return true;
+}

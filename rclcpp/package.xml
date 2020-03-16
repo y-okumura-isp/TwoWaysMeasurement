@@ -16,7 +16,10 @@
     <build_type>ament_cmake</build_type>
   </export>
 
-  <exec_depend>twmsgs</exec_depend>
   <exec_depend>rclcpp</exec_depend>
   <exec_depend>std_msgs</exec_depend>
+  <exec_depend>twmsgs</exec_depend>
+  <exec_depend>rosidl_generator_cpp</exec_depend>
+  <exec_depend>tlsf_cpp</exec_depend>
+  <build_depend>rttest</build_depend>
 </package>

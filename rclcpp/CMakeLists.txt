@@ -22,6 +22,7 @@ find_package(std_msgs REQUIRED)
 find_package(twmsgs REQUIRED)
 find_package(rosidl_generator_cpp REQUIRED)
 find_package(tlsf_cpp)
+find_package(rttest)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
@@ -50,6 +51,7 @@ set(DEPENDS
   twmsgs
   tlsf_cpp
   rosidl_generator_cpp
+  rttest
   )
 
 # one exec, one node
