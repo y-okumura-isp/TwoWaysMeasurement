@@ -54,17 +54,27 @@ set(DEPENDS
   rttest
   )
 
-# one exec, one node
+# one exec, one node, ping
 set(OEON tw_1exec_1node)
 add_executable(${OEON} 1exec/main_1exec_1node_pubsub.cpp ${TW_COMMON})
 ament_target_dependencies(${OEON} ${DEPENDS})
 
-# one exec, two node
+# one exec, one node, ping-pong
+set(OEON_PIPO tw_1exec_1node_ping_pong)
+add_executable(${OEON_PIPO} 1exec/main_1exec_1node_ping_pong.cpp ${TW_COMMON})
+ament_target_dependencies(${OEON_PIPO} ${DEPENDS})
+
+# one exec, two node, ping
 set(OETN tw_1exec_2node)
 add_executable(${OETN} 1exec/main_1exec_2node_pubsub.cpp ${TW_COMMON})
 ament_target_dependencies(${OETN} ${DEPENDS})
 
-# two exec, two node
+# one exec, two node, ping-pong
+set(OETN_PIPO tw_1exec_2node_ping_pong)
+add_executable(${OETN_PIPO} 1exec/main_1exec_2node_ping_pong.cpp ${TW_COMMON})
+ament_target_dependencies(${OETN_PIPO} ${DEPENDS})
+
+# two exec, two node, ping
 set(TEP tw_2exec_pub)
 add_executable(${TEP} 2exec/main_pub.cpp ${TW_COMMON})
 ament_target_dependencies(${TEP} ${DEPENDS})
@@ -72,6 +82,15 @@ ament_target_dependencies(${TEP} ${DEPENDS})
 set(TES tw_2exec_sub)
 add_executable(${TES} 2exec/main_sub.cpp ${TW_COMMON})
 ament_target_dependencies(${TES} ${DEPENDS})
+
+# two exec, two node, ping-pong
+set(TEP_PIPO tw_2exec_pub_ping_pong)
+add_executable(${TEP_PIPO} 2exec/main_pub_ping_pong.cpp ${TW_COMMON})
+ament_target_dependencies(${TEP_PIPO} ${DEPENDS})
+
+set(TES_PIPO tw_2exec_sub_ping_pong)
+add_executable(${TES_PIPO} 2exec/main_sub_ping_pong.cpp ${TW_COMMON})
+ament_target_dependencies(${TES_PIPO} ${DEPENDS})
 
 # one exec, one node, service
 set(OEON_SRV tw_1exec_1node_srv)
@@ -95,9 +114,13 @@ ament_target_dependencies(${TE_CLIENT} ${DEPENDS})
 
 install(TARGETS
   ${OEON}
+  ${OEON_PIPO}
   ${OETN}
+  ${OETN_PIPO}
   ${TEP}
   ${TES}
+  ${TEP_PIPO}
+  ${TES_PIPO}
   ${OEON_SRV}
   ${OETN_SRV}
   ${TE_SERVER}

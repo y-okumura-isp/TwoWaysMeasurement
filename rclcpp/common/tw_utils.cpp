@@ -28,7 +28,7 @@ void JitterReport::print(const std::string & prefix)
 {
   std::cout << prefix << std::endl;
   std::cout << "  max" << std::endl;
-  std::cout << "    " << max_ns_ << std::endl;
+  std::cout << "    " << max_ns_ << "[ns]" << std::endl;
 
   std::cout << "  histogram" << std::endl;
   std::cout << "    ";
