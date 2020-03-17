@@ -14,17 +14,7 @@ struct JitterReportOptions
 
 class TwoWaysNodeOptions {
 public:
-  TwoWaysNodeOptions()
-  {
-    common_report_option.bin = 600;
-    common_report_option.round_ns = 1000;
-
-    ping_wakeup.bin = 600;
-    ping_wakeup.round_ns = 1000;
-
-    ping_sub.bin = 600;
-    ping_sub.round_ns = 1000;
-  }
+  TwoWaysNodeOptions();
 
   /// Init NodeOptions
   void set_node_options(rclcpp::NodeOptions & node_options);
@@ -36,33 +26,33 @@ public:
   bool set_realtime_settings();
 
   // scheduler
-  bool sets_realtime_settings = false;
-  size_t sched_priority = 98;
-  int sched_policy = SCHED_RR;
+  bool sets_realtime_settings;
+  size_t sched_priority;
+  int sched_policy;
 
-  const char * node_name = "node";
-  const char * node_name_pub = "node_pub";
-  const char * node_name_sub = "node_sub";
-  const char * namespace_ = "ns";
-  const char * topic_name = "ping";
-  const char * topic_name_pong = "pong";
-  const char * service_name = "ping";
-  rclcpp::QoS qos = rclcpp::QoS(1).best_effort();
+  std::string node_name;
+  std::string node_name_pub;
+  std::string node_name_sub;
+  std::string namespace_;
+  std::string topic_name;
+  std::string topic_name_pong;
+  std::string service_name;
+  rclcpp::QoS qos;
 
   // wake up period[ns]
-  const int period_ns = 10 * 1000 * 1000;
+  const int period_ns;
   JitterReportOptions common_report_option;
   JitterReportOptions ping_wakeup;
   JitterReportOptions ping_sub;
 
   // Options for rclcpp::Executor
-  const bool use_tlsf_allocator = true;
+  const bool use_tlsf_allocator;
 
   // Options for rclcpp::Subscription
-  const bool use_message_pool_memory_strategy = true;
+  const bool use_message_pool_memory_strategy;
 
   // Options for rclcpp::Node
-  const bool use_intra_process_comms = false;
+  const bool use_intra_process_comms;
 };
 
 #endif  /* SETTING_H_ */

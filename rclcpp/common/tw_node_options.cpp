@@ -8,6 +8,33 @@ using rclcpp::memory_strategies::allocator_memory_strategy::AllocatorMemoryStrat
 template<typename T = void>
 using TLSFAllocator = tlsf_heap_allocator<T>;
 
+TwoWaysNodeOptions::TwoWaysNodeOptions():
+    sets_realtime_settings(false),
+    sched_priority(98),
+    sched_policy(SCHED_RR),
+    node_name("node"),
+    node_name_pub("node_pub"),
+    node_name_sub("node_sub"),
+    namespace_("ns"),
+    topic_name("ping"),
+    topic_name_pong("pong"),
+    service_name("ping"),
+    qos(rclcpp::QoS(1).best_effort()),
+    period_ns(10 * 1000 * 1000),
+    use_tlsf_allocator(true),
+    use_message_pool_memory_strategy(true),
+    use_intra_process_comms(false)
+{
+    common_report_option.bin = 600;
+    common_report_option.round_ns = 1000;
+
+    ping_wakeup.bin = 600;
+    ping_wakeup.round_ns = 1000;
+
+    ping_sub.bin = 600;
+    ping_sub.round_ns = 1000;
+}
+
 void TwoWaysNodeOptions::set_node_options(rclcpp::NodeOptions & node_options)
 {
   node_options.use_intra_process_comms(use_intra_process_comms);
