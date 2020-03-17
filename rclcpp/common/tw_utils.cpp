@@ -11,6 +11,8 @@ void JitterReport::init(int bin_size, int round_ns)
   round_ns_ = round_ns;
   max_ns_ = 0;
   histogram_.resize(bin_size);
+  accum_ = 0;
+  cnt_ = 0;
 }
 
 void JitterReport::add(int ns)
@@ -22,15 +24,20 @@ void JitterReport::add(int ns)
 
   histogram_[std::min(idx, bin_size_-1)] += 1;
   max_ns_ = std::max(max_ns_, ns);
+  accum_ += ns;
+  cnt_++;
 }
 
 void JitterReport::print(const std::string & prefix)
 {
   std::cout << prefix << std::endl;
-  std::cout << "  max" << std::endl;
-  std::cout << "    " << max_ns_ << "[ns]" << std::endl;
+  std::cout << "  max: " << max_ns_ << "[ns]" << std::endl;
+  std::cout << "  avg: " << accum_ / cnt_ << "[ns]" << std::endl;
 
-  std::cout << "  histogram" << std::endl;
+  std::cout << "  histogram"
+            << " round_ns = " << round_ns_
+            << " bin = " << bin_size_
+            << std::endl;
   std::cout << "    ";
   std::for_each(histogram_.begin(),
                 histogram_.end(),

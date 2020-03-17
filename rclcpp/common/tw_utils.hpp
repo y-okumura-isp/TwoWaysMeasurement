@@ -29,6 +29,8 @@ private:
   int bin_size_;
   int round_ns_;
   int max_ns_;
+  long accum_;
+  int cnt_;
 };
 
 #endif  // TW_UTILS_HPP_
