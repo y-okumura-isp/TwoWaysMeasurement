@@ -21,6 +21,7 @@ TwoWaysNodeOptions::TwoWaysNodeOptions():
     service_name("ping"),
     qos(rclcpp::QoS(1).best_effort()),
     period_ns(10 * 1000 * 1000),
+    num_loops_(10000),
     use_tlsf_allocator(true),
     use_message_pool_memory_strategy(true),
     use_intra_process_comms(false)

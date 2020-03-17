@@ -60,6 +60,11 @@ bool TwoWaysServiceNode::setup_ping_client()
 
         ping_client_->async_send_request(req, response_callback);
         ping_send_count_++;
+
+        // fin
+        if(ping_send_count_ == tw_options_.num_loops_) {
+          std::raise(SIGINT);
+        }
       };
 
   ping_epoch_ = _SC::now();

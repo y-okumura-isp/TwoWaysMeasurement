@@ -31,7 +31,7 @@ void TwoWaysNode::setup_ping_publisher()
 
         this->ping_pub_count_++;
 
-        if(ping_pub_count_ == 10) {
+        if(ping_pub_count_ == tw_options_.num_loops_) {
           std::raise(SIGINT);
         }
       };

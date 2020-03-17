@@ -30,6 +30,7 @@ public:
   size_t sched_priority;
   int sched_policy;
 
+  // node, topic, qos
   std::string node_name;
   std::string node_name_pub;
   std::string node_name_sub;
@@ -45,12 +46,13 @@ public:
   JitterReportOptions ping_wakeup;
   JitterReportOptions ping_sub;
 
+  /////// test conditions
+  // number of loops
+  const int num_loops_;
   // Options for rclcpp::Executor
   const bool use_tlsf_allocator;
-
   // Options for rclcpp::Subscription
   const bool use_message_pool_memory_strategy;
-
   // Options for rclcpp::Node
   const bool use_intra_process_comms;
 };
