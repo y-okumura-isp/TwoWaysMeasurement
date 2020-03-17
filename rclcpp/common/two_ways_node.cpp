@@ -30,6 +30,10 @@ void TwoWaysNode::setup_ping_publisher()
         this->ping_pub_->publish(msg);
 
         this->ping_pub_count_++;
+
+        if(ping_pub_count_ == 10) {
+          std::raise(SIGINT);
+        }
       };
 
   // set timer
