@@ -20,6 +20,7 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
 find_package(composition REQUIRED)
+find_package(rttest REQUIRED)
 
 set(node_plugins "")
 
@@ -40,13 +41,17 @@ target_compile_definitions(${TGT}
   PRIVATE "COMPOSITION_BUILDING_DLL")
 ament_target_dependencies(${TGT}
   rclcpp
-  rclcpp_components)
+  rclcpp_components
+  rttest)
 rclcpp_components_register_nodes(${TGT} "cyclic_component::CyclicNode")
 set(node_plugins "${node_plugins}cyclic_component::CyclicNode;$<TARGET_FILE:${TGT}>\n")
 
 set(EXE main_cyclic_node)
 add_executable(${EXE} main_cyclic_node.cpp cyclic_component.cpp)
-ament_target_dependencies(${EXE} rclcpp rclcpp_components)
+ament_target_dependencies(${EXE}
+  rclcpp
+  rclcpp_components
+  rttest)
 
 install(TARGETS
   ${TGT}

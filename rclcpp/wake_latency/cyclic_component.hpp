@@ -31,6 +31,11 @@ private:
   std::string fout_;
   std::ofstream os_;
 
+  struct timespec epoch_ts_;
+  struct timespec last_fin_ts_;
+  struct timespec expect_ts_;
+  struct timespec period_ns_ts_;
+
   int diff_ns(TIME_POINT lhs, TIME_POINT rhs);
   int tp2ns(TIME_POINT tp);
 };
