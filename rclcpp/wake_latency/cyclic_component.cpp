@@ -21,7 +21,7 @@ void getnow(struct timespec *t)
 
 CyclicNode::CyclicNode(const rclcpp::NodeOptions & options)
     : Node("cyclic_node", options),
-      period_ns_(10 * 1000 * 1000), sleep_ns_(1000 * 1000), count_(0),
+      period_ns_(10 * 1000 * 1000), sleep_ns_(1000 * 1000),
       fout_("cyclic_component.txt")
 {
   os_.open(fout_, std::ios::out);
@@ -29,16 +29,6 @@ CyclicNode::CyclicNode(const rclcpp::NodeOptions & options)
   auto callback =
       [this]()
       {
-        count_++;
-        auto now = SC::now();
-        auto expect = epoch_ + NS(period_ns_) * count_;
-        os_ << tp2ns(now) << ", "
-            << tp2ns(expect) << ", "
-            << tp2ns(last_fin_) << ", "
-            << diff_ns(now, expect) << ", "
-            << diff_ns(now, last_fin_)
-            << std::endl;
-
         struct timespec now_ts;
         getnow(&now_ts);
         struct timespec now_expect_diff_ts, now_last_fin_diff_ts;
@@ -53,22 +43,31 @@ CyclicNode::CyclicNode(const rclcpp::NodeOptions & options)
             << timespec_to_long(&now_last_fin_diff_ts)
             << std::endl;
 
-        //std::this_thread::sleep_for(NS(sleep_ns_));
-        last_fin_ = SC::now();
+        /*
+          Sleep a while.
+          I doubt thread waits <period_ns_>[ns] after callback finished? => not matters.
+          So comment out next line for simplicity.
+        */
+        // std::this_thread::sleep_for(NS(sleep_ns_));
+
         getnow(&last_fin_ts_);
 
+        // set next expected wakeup time
         add_timespecs(&expect_ts_, &period_ns_ts_, &expect_ts_);
       };
 
-  epoch_ = SC::now();
-  last_fin_ = SC::now();
-
+  // set epoch
   getnow(&epoch_ts_);
   getnow(&last_fin_ts_);
+
+  // period
   period_ns_ts_.tv_sec = 0;
   period_ns_ts_.tv_nsec = period_ns_;
+
+  // calcurate nexe wake up time
   add_timespecs(&epoch_ts_, &period_ns_ts_, &expect_ts_);
 
+  // start timer
   timer_ = create_wall_timer(NS(period_ns_), callback);
 }
 
@@ -76,17 +75,6 @@ CyclicNode::~CyclicNode()
 {
   os_.close();
 }
-
-int CyclicNode::diff_ns(TIME_POINT lhs, TIME_POINT rhs)
-{
-  return std::chrono::duration_cast<std::chrono::nanoseconds>(lhs - rhs).count();
-}
-
-int CyclicNode::tp2ns(TIME_POINT tp)
-{
-  return std::chrono::nanoseconds(tp.time_since_epoch()).count();
-}
-
 
 }  // namespace cyclic_component
 
