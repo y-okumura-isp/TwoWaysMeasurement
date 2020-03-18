@@ -2,6 +2,7 @@
 #define CYCLIC_COMPONENT_HPP_
 
 #include <chrono>
+#include <fstream>
 
 // #include <composition/visibility_control.h>
 #include <rclcpp/rclcpp.hpp>

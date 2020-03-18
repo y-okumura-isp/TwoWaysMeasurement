@@ -44,10 +44,18 @@ ament_target_dependencies(${TGT}
 rclcpp_components_register_nodes(${TGT} "cyclic_component::CyclicNode")
 set(node_plugins "${node_plugins}cyclic_component::CyclicNode;$<TARGET_FILE:${TGT}>\n")
 
+set(EXE main_cyclic_node)
+add_executable(${EXE} main_cyclic_node.cpp cyclic_component.cpp)
+ament_target_dependencies(${EXE} rclcpp rclcpp_components)
+
 install(TARGETS
   ${TGT}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin)
+
+install(TARGETS
+  ${EXE}
+  DESTINATION lib/${PROJECT_NAME})
 
 ament_package()
