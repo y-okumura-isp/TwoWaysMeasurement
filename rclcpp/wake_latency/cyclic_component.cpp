@@ -35,8 +35,7 @@ CyclicNode::CyclicNode(const rclcpp::NodeOptions & options)
         subtract_timespecs(&now_ts, &expect_ts_, &now_expect_diff_ts);
         subtract_timespecs(&now_ts, &last_fin_ts_, &now_last_fin_diff_ts);
 
-        os_ << "ts "
-            << timespec_to_long(&now_ts) << ", "
+        os_ << timespec_to_long(&now_ts) << ", "
             << timespec_to_long(&expect_ts_) << ", "
             << timespec_to_long(&last_fin_ts_) << ","
             << timespec_to_long(&now_expect_diff_ts) << ","
