@@ -23,10 +23,13 @@ private:
   std::ofstream os_;
 
   struct timespec epoch_ts_;
-  struct timespec last_wakeup_;
+  struct timespec last_wakeup_ts_;
   struct timespec last_fin_ts_;
   struct timespec expect_ts_;
   struct timespec period_ns_ts_;
+
+  struct timespec epoch_rt_;
+  struct timespec expect_rt_;
 };
 
 }  // namespace cyclic_component
