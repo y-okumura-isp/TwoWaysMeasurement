@@ -16,7 +16,8 @@ namespace cyclic_component
 void getnow(struct timespec *t)
 {
   // clock_gettime(CLOCK_REALTIME, t);
-  clock_gettime(CLOCK_MONOTONIC, t);
+  // clock_gettime(CLOCK_MONOTONIC, t);
+  clock_gettime(CLOCK_MONOTONIC_RAW, t);
 }
 
 CyclicNode::CyclicNode(const rclcpp::NodeOptions & options)
@@ -25,20 +26,23 @@ CyclicNode::CyclicNode(const rclcpp::NodeOptions & options)
       fout_("cyclic_component.txt")
 {
   os_.open(fout_, std::ios::out);
-  os_ << "now, expect, last_fin, now-expect, now-last_fin" << std::endl;
+  os_ << "now, expect, last_fin, now-expect, now-last_wakeup, now-last_fin" << std::endl;
   auto callback =
       [this]()
       {
         struct timespec now_ts;
         getnow(&now_ts);
-        struct timespec now_expect_diff_ts, now_last_fin_diff_ts;
+        struct timespec now_expect_diff_ts, now_last_now_diff_ts, now_last_fin_diff_ts;
         subtract_timespecs(&now_ts, &expect_ts_, &now_expect_diff_ts);
+        subtract_timespecs(&now_ts, &last_wakeup_, &now_last_now_diff_ts);
         subtract_timespecs(&now_ts, &last_fin_ts_, &now_last_fin_diff_ts);
+
 
         os_ << timespec_to_long(&now_ts) << ", "
             << timespec_to_long(&expect_ts_) << ", "
             << timespec_to_long(&last_fin_ts_) << ", "
             << timespec_to_long(&now_expect_diff_ts) << ", "
+            << timespec_to_long(&now_last_now_diff_ts) << ", "
             << timespec_to_long(&now_last_fin_diff_ts)
             << std::endl;
 
@@ -49,6 +53,7 @@ CyclicNode::CyclicNode(const rclcpp::NodeOptions & options)
         */
         // std::this_thread::sleep_for(NS(sleep_ns_));
 
+        last_wakeup_ = now_ts;
         getnow(&last_fin_ts_);
 
         // set next expected wakeup time
@@ -57,7 +62,8 @@ CyclicNode::CyclicNode(const rclcpp::NodeOptions & options)
 
   // set epoch
   getnow(&epoch_ts_);
-  getnow(&last_fin_ts_);
+  last_fin_ts_ = epoch_ts_;
+  last_wakeup_ = epoch_ts_;
 
   // period
   period_ns_ts_.tv_sec = 0;
