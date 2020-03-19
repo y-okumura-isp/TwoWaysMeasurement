@@ -1,6 +1,8 @@
 #ifndef TWO_WAYS_SERVICE_NODE_HPP_
 #define TWO_WAYS_SERVICE_NODE_HPP_
 
+#include <time.h>
+
 #include <chrono>
 #include <rclcpp/rclcpp.hpp>
 
@@ -10,20 +12,19 @@
 
 class TwoWaysServiceNode : public rclcpp::Node
 {
-  using _SC = std::chrono::system_clock;
-  using TIME_POINT = std::chrono::time_point<std::chrono::system_clock>;
-
- public:
+public:
   TwoWaysServiceNode(
       const std::string node_name,
       const TwoWaysNodeOptions & tw_options,
       const rclcpp::NodeOptions & options)
       : Node(node_name, tw_options.namespace_, options), tw_options_(tw_options)
   {
-    JitterReport* reports[] = {&ping_wakeup_report_,
-                      &ping_sub_report_,
-                      &pong_trans_report_,
-                      &ping_pong_report_};
+    JitterReport* reports[] = {
+      &ping_wakeup_report_,
+      &diff_wakeup_report_,
+      &ping_sub_report_,
+      &pong_trans_report_,
+      &ping_pong_report_};
     for(auto l : reports) {
       l->init(tw_options.common_report_option.bin,
               tw_options.common_report_option.round_ns);
@@ -35,6 +36,9 @@ class TwoWaysServiceNode : public rclcpp::Node
 
   void print_ping_wakeup_report() {
     ping_wakeup_report_.print("ping_wakeup");
+  }
+  void print_diff_wakeup_report() {
+    diff_wakeup_report_.print("diff_wakeup");
   }
   void print_ping_sub_report() {
     ping_sub_report_.print("ping_sub");
@@ -50,7 +54,11 @@ protected:
   const TwoWaysNodeOptions & tw_options_;
 
 private:
-  TIME_POINT ping_epoch_;
+  struct timespec epoch_ts_;
+  struct timespec period_ts_;
+  struct timespec expect_ts_;
+  struct timespec last_wake_ts_;
+
   rclcpp::TimerBase::SharedPtr ping_timer_;
   rclcpp::Client<twmsgs::srv::Data>::SharedPtr ping_client_;
   rclcpp::Service<twmsgs::srv::Data>::SharedPtr ping_server_;
@@ -59,6 +67,8 @@ private:
 
   // wakeup jitter report
   JitterReport ping_wakeup_report_;
+  // wakeup jitter from last wakeup
+  JitterReport diff_wakeup_report_;
   // sub jitter report
   JitterReport ping_sub_report_;
   // pong_recv - pong_send jitter report

@@ -1,6 +1,7 @@
 #ifndef TW_UTILS_HPP_
 #define TW_UTILS_HPP_
 
+#include <time.h>
 #include <array>
 
 /**
@@ -32,5 +33,15 @@ private:
   long accum_;
   int cnt_;
 };
+
+inline void getnow(struct timespec *t)
+{
+  /* ROS2 uses CLOCK_MONOTONIC_RAW.
+   * If you use another CLOCK_*, calcuration result may differ.
+   */
+  // clock_gettime(CLOCK_REALTIME, t);
+  // clock_gettime(CLOCK_MONOTONIC, t);
+  clock_gettime(CLOCK_MONOTONIC_RAW, t);
+}
 
 #endif  // TW_UTILS_HPP_

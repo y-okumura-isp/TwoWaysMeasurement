@@ -34,6 +34,7 @@ int main(int argc, char *argv[])
 
   std::cout << "fin" << std::endl;
   node->print_ping_wakeup_report();
+  node->print_diff_wakeup_report();
   node->print_ping_sub_report();
   node->print_pong_trans_report();
   node->print_ping_pong_report();
