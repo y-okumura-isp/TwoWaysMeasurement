@@ -20,7 +20,6 @@ bool TwoWaysServiceNode::setup_ping_client()
   auto send_request =
       [this]() -> void
       {
-
         struct timespec time_wake_ts;
         getnow(&time_wake_ts);
 

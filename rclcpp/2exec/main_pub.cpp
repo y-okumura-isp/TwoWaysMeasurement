@@ -32,6 +32,7 @@ int main(int argc, char *argv[])
   exec->remove_node(npub);
 
   npub->print_ping_wakeup_report();
+  npub->print_diff_wakeup_report();
 
   rclcpp::shutdown();
 }

@@ -1,5 +1,6 @@
 #include <rosidl_generator_cpp/traits.hpp>
 #include <rclcpp/strategies/message_pool_memory_strategy.hpp>
+#include <rttest/utils.h>
 #include "two_ways_node.hpp"
 
 using rclcpp::strategies::message_pool_memory_strategy::MessagePoolMemoryStrategy;
@@ -16,28 +17,44 @@ void TwoWaysNode::setup_ping_publisher()
   auto callback_pub =
       [this, period_ns]() -> void
       {
+        struct timespec time_wake_ts;
+        getnow(&time_wake_ts);
+
         // calc wakeup jitter
-        TIME_POINT now = _SC::now();
-        auto expect = this->ping_epoch_ + std::chrono::nanoseconds(period_ns) * (this->ping_pub_count_ + 1);
-        auto diff = std::chrono::duration_cast<std::chrono::nanoseconds>(now - expect);
-        ping_wakeup_report_.add(diff.count());
+        struct timespec now_expect_diff_ts;
+        subtract_timespecs(&time_wake_ts, &expect_ts_, &now_expect_diff_ts);
+        ping_wakeup_report_.add(timespec_to_long(&now_expect_diff_ts));
+        struct timespec diff_from_last_wakeup_ts;
+        subtract_timespecs(&time_wake_ts, &last_wake_ts_, &diff_from_last_wakeup_ts);
+        // minus period because distribution mean is period_ns.
+        subtract_timespecs(&diff_from_last_wakeup_ts, &period_ts_, &diff_from_last_wakeup_ts);
+        diff_wakeup_report_.add(timespec_to_long(&diff_from_last_wakeup_ts));
+
+        // prepere to next
+        add_timespecs(&epoch_ts_, &period_ts_, &expect_ts_);
+        ping_pub_count_++;
+        last_wake_ts_ = time_wake_ts;
 
         // pub
         twmsgs::msg::Data msg;
-        msg.data = this->ping_pub_count_;
+        msg.data = ping_pub_count_;
         // msg.data = "HelloWorld" + std::to_string(this->ping_pub_count_);
-        msg.time_sent_ns = std::chrono::nanoseconds(_SC::now().time_since_epoch()).count();
-        this->ping_pub_->publish(msg);
+        auto time_wake_ns = timespec_to_long(&time_wake_ts);
+        msg.time_sent_ns = time_wake_ns;
+        ping_pub_->publish(msg);
 
-        this->ping_pub_count_++;
-
+        ping_pub_count_++;
         if(ping_pub_count_ == tw_options_.num_loops_) {
           std::raise(SIGINT);
         }
       };
 
   // set timer
-  this->ping_epoch_ = _SC::now();
+  getnow(&epoch_ts_);
+  period_ts_.tv_sec = 0;
+  period_ts_.tv_nsec = tw_options_.period_ns;
+  add_timespecs(&epoch_ts_, &period_ts_, &expect_ts_);
+  last_wake_ts_ = epoch_ts_;
   this->ping_timer_ = this->create_wall_timer(std::chrono::nanoseconds(period_ns), callback_pub);
 }
 
@@ -57,7 +74,9 @@ void TwoWaysNode::setup_ping_subscriber(bool send_pong)
   auto callback_sub =
       [this](const twmsgs::msg::Data::SharedPtr msg) -> void
       {
-        int now_ns = std::chrono::nanoseconds(_SC::now().time_since_epoch()).count();
+        struct timespec now_ts;
+        getnow(&now_ts);
+        auto now_ns = timespec_to_long(&now_ts);
         ping_sub_report_.add(now_ns - msg->time_sent_ns);
         ping_sub_count_++;
 
@@ -67,7 +86,7 @@ void TwoWaysNode::setup_ping_subscriber(bool send_pong)
 
         auto pong = twmsgs::msg::Data();
         pong.time_sent_ns = msg->time_sent_ns;
-        pong.time_sent_pong_ns = std::chrono::nanoseconds(_SC::now().time_since_epoch()).count();
+        pong.time_sent_pong_ns = now_ns;
         pong.data = msg->data;
         pong_pub_->publish(pong);
         pong_pub_count_++;
@@ -97,7 +116,10 @@ void TwoWaysNode::setup_pong_subscriber()
   auto callback_pong_sub =
       [this](const twmsgs::msg::Data::SharedPtr msg) -> void
       {
-        int now_ns = std::chrono::nanoseconds(_SC::now().time_since_epoch()).count();
+        struct timespec now;
+        getnow(&now);
+
+        auto now_ns = timespec_to_long(&now);
         ping_pong_report_.add(now_ns - msg->time_sent_ns);
         pong_sub_report_.add(now_ns - msg->time_sent_pong_ns);
         pong_sub_count_++;

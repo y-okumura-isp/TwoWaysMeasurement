@@ -11,9 +11,6 @@
 
 class TwoWaysNode : public rclcpp::Node
 {
-  using _SC = std::chrono::system_clock;
-  using TIME_POINT = std::chrono::time_point<std::chrono::system_clock>;
-
 public:
   explicit TwoWaysNode(
       const std::string name,
@@ -31,6 +28,9 @@ public:
     ping_wakeup_report_.init(
         tw_options.ping_wakeup.bin,
         tw_options.ping_wakeup.round_ns);
+    diff_wakeup_report_.init(
+        tw_options.common_report_option.bin,
+        tw_options.common_report_option.round_ns);
     ping_sub_report_.init(
         tw_options.ping_sub.bin,
         tw_options.ping_sub.round_ns);
@@ -48,9 +48,6 @@ public:
   // number of ping publish
   int ping_pub_count_;
 
-  // ping epoch
-  TIME_POINT ping_epoch_;
-
   // number of ping subscribe
   int ping_sub_count_;
 
@@ -62,6 +59,9 @@ public:
 
   void print_ping_wakeup_report() {
     ping_wakeup_report_.print("ping_wakeup");
+  }
+  void print_diff_wakeup_report() {
+    diff_wakeup_report_.print("diff_wakeup");
   }
   void print_ping_sub_report() {
     ping_sub_report_.print("ping_sub");
@@ -81,6 +81,11 @@ protected:
   const TwoWaysNodeOptions & tw_options_;
 
 private:
+  struct timespec epoch_ts_;
+  struct timespec period_ts_;
+  struct timespec expect_ts_;
+  struct timespec last_wake_ts_;
+
   rclcpp::TimerBase::SharedPtr ping_timer_;
   rclcpp::Publisher<twmsgs::msg::Data>::SharedPtr ping_pub_;
   rclcpp::Subscription<twmsgs::msg::Data>::SharedPtr ping_sub_;
@@ -91,6 +96,8 @@ private:
 
   // wakeup jitter report
   JitterReport ping_wakeup_report_;
+  // wakeup jitter from last wakeup
+  JitterReport diff_wakeup_report_;
   // sub jitter report
   JitterReport ping_sub_report_;
   // pong sub jitter report
