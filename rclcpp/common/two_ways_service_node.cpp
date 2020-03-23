@@ -16,6 +16,7 @@ bool TwoWaysServiceNode::setup_ping_client()
     std::cout << "service not available, waiting again..." << std::endl;
   }
   std::cout << "service found" << std::endl;
+  req = std::make_shared<twmsgs::srv::Data::Request>();
 
   auto send_request =
       [this]() -> void
@@ -39,7 +40,6 @@ bool TwoWaysServiceNode::setup_ping_client()
         last_wake_ts_ = time_wake_ts;
 
         // send request
-        auto req = std::make_shared<twmsgs::srv::Data::Request>();
         auto time_wake_ns = timespec_to_long(&time_wake_ts);
         req->time_sent_ns = time_wake_ns;
         req->data = ping_send_count_;

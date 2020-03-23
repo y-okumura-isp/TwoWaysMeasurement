@@ -58,6 +58,7 @@ private:
   struct timespec period_ts_;
   struct timespec expect_ts_;
   struct timespec last_wake_ts_;
+  twmsgs::srv::Data::Request::SharedPtr req;
 
   rclcpp::TimerBase::SharedPtr ping_timer_;
   rclcpp::Client<twmsgs::srv::Data>::SharedPtr ping_client_;
