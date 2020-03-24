@@ -16,9 +16,10 @@ template<typename T = void>
 using TLSFAllocator = tlsf_heap_allocator<T>;
 
 TwoWaysNodeOptions::TwoWaysNodeOptions():
-    sets_realtime_settings(true),
+    sets_realtime_settings(false),
     sched_priority(98),
     sched_policy(SCHED_RR),
+    prefault_dynamic_size(209715200UL),  // 200MB
     node_name("node"),
     node_name_pub("node_pub"),
     node_name_sub("node_sub"),
