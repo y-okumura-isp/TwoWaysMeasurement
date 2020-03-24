@@ -30,6 +30,9 @@ public:
   size_t sched_priority;
   int sched_policy;
 
+  // prefault
+  size_t prefault_dynamic_size = 209715200UL;  // 200MB
+
   // node, topic, qos
   std::string node_name;
   std::string node_name_pub;
