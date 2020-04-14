@@ -12,35 +12,14 @@
 class TwoWaysNode : public rclcpp::Node
 {
 public:
+  // explicit TwoWaysNode(
+  //     const rclcpp::NodeOptions & options = rclcpp::NodeOptions());
+
   explicit TwoWaysNode(
       const std::string name,
       const std::string namespace_,
       const TwoWaysNodeOptions & tw_options = TwoWaysNodeOptions(),
-      const rclcpp::NodeOptions & options = rclcpp::NodeOptions())
-      : Node(name, namespace_, options),
-        ping_pub_count_(0),
-        ping_sub_count_(0),
-        pong_pub_count_(0),
-        pong_sub_count_(0),
-        tw_options_(tw_options),
-        send_pong_(false)
-  {
-    ping_wakeup_report_.init(
-        tw_options.ping_wakeup.bin,
-        tw_options.ping_wakeup.round_ns);
-    diff_wakeup_report_.init(
-        tw_options.common_report_option.bin,
-        tw_options.common_report_option.round_ns);
-    ping_sub_report_.init(
-        tw_options.ping_sub.bin,
-        tw_options.ping_sub.round_ns);
-    pong_sub_report_.init(
-        tw_options.ping_sub.bin,
-        tw_options.ping_sub.round_ns);
-    ping_pong_report_.init(
-        tw_options.ping_sub.bin,
-        tw_options.ping_sub.round_ns);
-  }
+      const rclcpp::NodeOptions & options = rclcpp::NodeOptions());
 
   virtual ~TwoWaysNode()
   {}
