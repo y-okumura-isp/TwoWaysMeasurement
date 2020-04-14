@@ -5,17 +5,56 @@
 
 using rclcpp::strategies::message_pool_memory_strategy::MessagePoolMemoryStrategy;
 
+const std::string PERIOD_NS = "period_ns";
+const std::string NUM_LOOPS = "num_loops";
+
+TwoWaysNode::TwoWaysNode(
+    const std::string name,
+    const std::string namespace_,
+    const TwoWaysNodeOptions & tw_options,
+    const rclcpp::NodeOptions & options)
+    : Node(name, namespace_, options),
+      ping_pub_count_(0), ping_sub_count_(0),
+      pong_pub_count_(0), pong_sub_count_(0),
+      tw_options_(tw_options),
+      send_pong_(false)
+{
+  declare_parameter(PERIOD_NS, 10 * 1000 * 1000);
+  declare_parameter(NUM_LOOPS, 10000);
+
+  // setup reports
+  ping_wakeup_report_.init(
+      tw_options.ping_wakeup.bin,
+      tw_options.ping_wakeup.round_ns);
+  diff_wakeup_report_.init(
+      tw_options.common_report_option.bin,
+      tw_options.common_report_option.round_ns);
+  ping_sub_report_.init(
+      tw_options.ping_sub.bin,
+      tw_options.ping_sub.round_ns);
+  pong_sub_report_.init(
+      tw_options.ping_sub.bin,
+      tw_options.ping_sub.round_ns);
+  ping_pong_report_.init(
+      tw_options.ping_sub.bin,
+      tw_options.ping_sub.round_ns);
+}
+
 void TwoWaysNode::setup_ping_publisher()
 {
   auto topic_name = this->tw_options_.topic_name;
   auto qos = this->tw_options_.qos;
-  auto period_ns = this->tw_options_.period_ns;
+  auto period_ns = get_parameter(PERIOD_NS).get_value<int>();
+  auto num_loops = get_parameter(NUM_LOOPS).get_value<int>();
+
+  std::cout << "period_ns: " << period_ns << std::endl;
+  std::cout << "num_loops: " << num_loops << std::endl;
 
   // pub
   this->ping_pub_ = this->create_publisher<twmsgs::msg::Data>(topic_name, qos);
 
   auto callback_pub =
-      [this, period_ns]() -> void
+      [this, period_ns, num_loops]() -> void
       {
         struct timespec time_wake_ts;
         getnow(&time_wake_ts);
@@ -43,8 +82,7 @@ void TwoWaysNode::setup_ping_publisher()
         msg.time_sent_ns = time_wake_ns;
         ping_pub_->publish(msg);
 
-        ping_pub_count_++;
-        if(ping_pub_count_ == tw_options_.num_loops_) {
+        if(ping_pub_count_ == num_loops) {
           std::raise(SIGINT);
         }
       };
