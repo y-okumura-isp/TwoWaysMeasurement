@@ -21,9 +21,21 @@ Two Ways Test
 # Build
 
 ```
+# This has many sub packages
+colcon list
+
+# build what you want
 cd ..
 colcon build --symlink-install --packages-select tw_rclcpp twmsgs
 ```
+
+# Run
+
+```
+./build/tw_rclcpp_1exec_topic/tw_1exec_1node \
+    --ros-args --param num_loops:=1000 -param period_ns:=1000000
+```
+
 
 # Common Output
 - Processes outputs following log to stdout as following.
