@@ -43,7 +43,6 @@ void TwoWaysNode::setup_ping_publisher()
         msg.time_sent_ns = time_wake_ns;
         ping_pub_->publish(msg);
 
-        ping_pub_count_++;
         if(ping_pub_count_ == tw_options_.num_loops_) {
           std::raise(SIGINT);
         }
