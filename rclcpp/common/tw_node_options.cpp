@@ -3,7 +3,7 @@
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <unistd.h>
-
+#include <getopt.h>
 
 #include <rttest/rttest.h>
 #include <rclcpp/strategies/allocator_memory_strategy.hpp>
@@ -14,6 +14,34 @@ using rclcpp::memory_strategies::allocator_memory_strategy::AllocatorMemoryStrat
 
 template<typename T = void>
 using TLSFAllocator = tlsf_heap_allocator<T>;
+
+
+TwoWaysNodeOptions::TwoWaysNodeOptions(int argc, char *argv[])
+    : TwoWaysNodeOptions()
+{
+  int c = 0;
+  int realtime_setting = 0;
+
+  const std::string optstring = "";
+  const struct option longopts[] = {
+    {"realtime-setting", no_argument, &realtime_setting, 1},
+    {0,         0,              0,      0},
+  };
+  int longindex = 0;
+  opterr = 0;
+  while ((c=getopt_long(argc, argv, optstring.c_str(), longopts, &longindex)) != -1) {
+    switch(c)
+    {
+      default:
+        break;
+    }
+  }
+
+  if (1 == realtime_setting) {
+    std::cout << "realtime setting: ON" << std::endl;
+    sets_realtime_settings = true;
+  }
+}
 
 TwoWaysNodeOptions::TwoWaysNodeOptions():
     sets_realtime_settings(false),

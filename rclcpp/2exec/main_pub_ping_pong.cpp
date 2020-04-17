@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
 
   rclcpp::init(argc, argv);
 
-  TwoWaysNodeOptions tw_options;
+  TwoWaysNodeOptions tw_options(argc, argv);
   if (!tw_options.set_realtime_settings()) {
     std::cerr << "set_realtime_setting failed" << std::endl;;
     return -1;

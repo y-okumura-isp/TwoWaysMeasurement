@@ -17,14 +17,14 @@ int main(int argc, char *argv[])
 
   rclcpp::init(argc, argv);
 
-  TwoWaysNodeOptions tw_options;
+  TwoWaysNodeOptions tw_options(argc, argv);
   if (!tw_options.set_realtime_settings()) {
     std::cerr << "set_realtime_setting failed" << std::endl;;
     return -1;
   }
 
   auto exec = tw_options.get_executor();
-  rclcpp::NodeOptions node_options;
+  rclcpp::NodeOptions node_options(argc, argv);
   tw_options.set_node_options(node_options);
   auto npub = std::make_shared<PubNode>(tw_options, node_options);
   auto nsub = std::make_shared<SubNode>(tw_options, node_options);

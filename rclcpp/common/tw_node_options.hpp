@@ -16,6 +16,8 @@ class TwoWaysNodeOptions {
 public:
   TwoWaysNodeOptions();
 
+  TwoWaysNodeOptions(int argc, char *argv[]);
+
   /// Init NodeOptions
   void set_node_options(rclcpp::NodeOptions & node_options);
 
