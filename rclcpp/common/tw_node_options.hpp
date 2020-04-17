@@ -12,6 +12,24 @@ struct JitterReportOptions
   int round_ns;
 };
 
+#define SET_REALTIME_SETTING_RRRR(tw_option) \
+  if (tw_options.sched_rrrr > 0) { \
+    std::cout << "rrrr" << std::endl; \
+    if (!tw_options.set_realtime_settings()) { \
+      std::cerr << "set_realtime_setting failed" << std::endl; \
+      return -1; \
+    } \
+  }
+
+#define SET_REALTIME_SETTING_RRTS(tw_option) \
+  if (tw_options.sched_rrts > 0) { \
+    std::cout << "rrts" << std::endl; \
+    if (!tw_options.set_realtime_settings()) { \
+      std::cerr << "set_realtime_setting failed" << std::endl; \
+      return -1; \
+    } \
+  }
+
 class TwoWaysNodeOptions {
 public:
   TwoWaysNodeOptions();
@@ -28,7 +46,8 @@ public:
   bool set_realtime_settings();
 
   // scheduler
-  bool sets_realtime_settings;
+  int sched_rrts;  // 0: false, 1: true
+  int sched_rrrr;  // 0: false, 1: true
   size_t sched_priority;
   int sched_policy;
 

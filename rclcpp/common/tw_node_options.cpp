@@ -20,15 +20,20 @@ TwoWaysNodeOptions::TwoWaysNodeOptions(int argc, char *argv[])
     : TwoWaysNodeOptions()
 {
   int c = 0;
-  int realtime_setting = 0;
+  int _optind = optind, _opterr = opterr, _optopt = optopt;
 
-  const std::string optstring = "";
+  optind = 1;
+  opterr = 0;
+
+  // prevent permutation of argv
+  const std::string optstring = "-";
   const struct option longopts[] = {
-    {"realtime-setting", no_argument, &realtime_setting, 1},
+    {"sched-rrts",              no_argument, &sched_rrts, 1},
+    {"sched-rrrr",              no_argument, &sched_rrrr, 1},
     {0,         0,              0,      0},
   };
+
   int longindex = 0;
-  opterr = 0;
   while ((c=getopt_long(argc, argv, optstring.c_str(), longopts, &longindex)) != -1) {
     switch(c)
     {
@@ -37,14 +42,14 @@ TwoWaysNodeOptions::TwoWaysNodeOptions(int argc, char *argv[])
     }
   }
 
-  if (1 == realtime_setting) {
-    std::cout << "realtime setting: ON" << std::endl;
-    sets_realtime_settings = true;
-  }
+  optind = _optind;
+  opterr = _opterr;
+  optopt = _optopt;
 }
 
 TwoWaysNodeOptions::TwoWaysNodeOptions():
-    sets_realtime_settings(false),
+    sched_rrts(0),
+    sched_rrrr(0),
     sched_priority(98),
     sched_policy(SCHED_RR),
     prefault_dynamic_size(209715200UL),  // 200MB
@@ -171,10 +176,6 @@ int lock_and_prefault_dynamic(size_t prefault_dynamic_size)
 
 bool TwoWaysNodeOptions::set_realtime_settings()
 {
-  if (!sets_realtime_settings) {
-    return true;
-  }
-
   // scheduler
   if (rttest_set_sched_priority(sched_priority,
                                 sched_policy) != 0) {
