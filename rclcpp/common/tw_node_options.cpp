@@ -18,6 +18,8 @@ using TLSFAllocator = tlsf_heap_allocator<T>;
 #define TRUE 1
 #define FALSE 0
 
+const int REPORT_BIN_DEFAULT = 600;
+const int REPORT_ROUND_NS_DEFAULT = 1000;
 
 TwoWaysNodeOptions::TwoWaysNodeOptions(int argc, char *argv[])
     : TwoWaysNodeOptions()
@@ -31,16 +33,24 @@ TwoWaysNodeOptions::TwoWaysNodeOptions(int argc, char *argv[])
   // prevent permutation of argv
   const std::string optstring = "-";
   const struct option longopts[] = {
-    {"sched-rrts",              no_argument, &sched_rrts, TRUE},
-    {"sched-rrrr",              no_argument, &sched_rrrr, TRUE},
-    {"ipm",                     no_argument, &use_intra_process_comms, TRUE},
-    {0,         0,              0,      0},
+    {"sched-rrts",      no_argument,            &sched_rrts,                    TRUE},
+    {"sched-rrrr",      no_argument,            &sched_rrrr,                    TRUE},
+    {"ipm",             no_argument,            &use_intra_process_comms,       TRUE},
+    {"round-ns",        required_argument,      0,                              'i'},
+    {0,                 0,                      0,                               0},
   };
 
   int longindex = 0;
+  int round_ns = 0;
   while ((c=getopt_long(argc, argv, optstring.c_str(), longopts, &longindex)) != -1) {
     switch(c)
     {
+      case('i'):
+        round_ns = std::stoi(optarg);
+        if(round_ns > 0) {
+          init_reports(REPORT_BIN_DEFAULT, round_ns);
+        }
+        break;
       default:
         break;
     }
@@ -71,14 +81,7 @@ TwoWaysNodeOptions::TwoWaysNodeOptions():
     use_message_pool_memory_strategy(true),
     use_intra_process_comms(FALSE)
 {
-    common_report_option.bin = 600;
-    common_report_option.round_ns = 1000;
-
-    ping_wakeup.bin = 600;
-    ping_wakeup.round_ns = 1000;
-
-    ping_sub.bin = 600;
-    ping_sub.round_ns = 1000;
+  init_reports(REPORT_BIN_DEFAULT, REPORT_ROUND_NS_DEFAULT);
 }
 
 void TwoWaysNodeOptions::set_node_options(rclcpp::NodeOptions & node_options)
@@ -195,4 +198,16 @@ bool TwoWaysNodeOptions::set_realtime_settings()
   }
 
   return true;
+}
+
+void TwoWaysNodeOptions::init_reports(int bin, int round_ns)
+{
+  common_report_option.bin = bin;
+  common_report_option.round_ns = round_ns;
+
+  ping_wakeup.bin = bin;
+  ping_wakeup.round_ns = round_ns;
+
+  ping_sub.bin = bin;
+  ping_sub.round_ns = round_ns;
 }

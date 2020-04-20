@@ -79,6 +79,10 @@ public:
   const bool use_message_pool_memory_strategy;
   // Options for rclcpp::Node
   int use_intra_process_comms; // 0: false, 1: true
+
+private:
+  void init_reports(int bin, int round_ns);
+
 };
 
 #endif  /* SETTING_H_ */
