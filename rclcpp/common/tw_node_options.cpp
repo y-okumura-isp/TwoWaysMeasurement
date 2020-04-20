@@ -15,6 +15,9 @@ using rclcpp::memory_strategies::allocator_memory_strategy::AllocatorMemoryStrat
 template<typename T = void>
 using TLSFAllocator = tlsf_heap_allocator<T>;
 
+#define TRUE 1
+#define FALSE 0
+
 
 TwoWaysNodeOptions::TwoWaysNodeOptions(int argc, char *argv[])
     : TwoWaysNodeOptions()
@@ -28,8 +31,9 @@ TwoWaysNodeOptions::TwoWaysNodeOptions(int argc, char *argv[])
   // prevent permutation of argv
   const std::string optstring = "-";
   const struct option longopts[] = {
-    {"sched-rrts",              no_argument, &sched_rrts, 1},
-    {"sched-rrrr",              no_argument, &sched_rrrr, 1},
+    {"sched-rrts",              no_argument, &sched_rrts, TRUE},
+    {"sched-rrrr",              no_argument, &sched_rrrr, TRUE},
+    {"ipm",                     no_argument, &use_intra_process_comms, TRUE},
     {0,         0,              0,      0},
   };
 
@@ -65,7 +69,7 @@ TwoWaysNodeOptions::TwoWaysNodeOptions():
     num_loops_(10000),
     use_tlsf_allocator(true),
     use_message_pool_memory_strategy(true),
-    use_intra_process_comms(false)
+    use_intra_process_comms(FALSE)
 {
     common_report_option.bin = 600;
     common_report_option.round_ns = 1000;
@@ -79,7 +83,8 @@ TwoWaysNodeOptions::TwoWaysNodeOptions():
 
 void TwoWaysNodeOptions::set_node_options(rclcpp::NodeOptions & node_options)
 {
-  node_options.use_intra_process_comms(use_intra_process_comms);
+  std::cout << "imp = " << (use_intra_process_comms == TRUE ? "true" : "false") << std::endl;
+  node_options.use_intra_process_comms(use_intra_process_comms == TRUE);
 }
 
 rclcpp::executor::Executor::SharedPtr TwoWaysNodeOptions::get_executor()

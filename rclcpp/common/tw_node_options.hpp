@@ -78,7 +78,7 @@ public:
   // Options for rclcpp::Subscription
   const bool use_message_pool_memory_strategy;
   // Options for rclcpp::Node
-  const bool use_intra_process_comms;
+  int use_intra_process_comms; // 0: false, 1: true
 };
 
 #endif  /* SETTING_H_ */
