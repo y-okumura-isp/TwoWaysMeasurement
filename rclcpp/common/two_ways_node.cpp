@@ -7,6 +7,7 @@ using rclcpp::strategies::message_pool_memory_strategy::MessagePoolMemoryStrateg
 
 const std::string PERIOD_NS = "period_ns";
 const std::string NUM_LOOPS = "num_loops";
+const std::string DEBUG_PRINT = "debug_print";
 
 TwoWaysNode::TwoWaysNode(
     const std::string name,
@@ -21,6 +22,7 @@ TwoWaysNode::TwoWaysNode(
 {
   declare_parameter(PERIOD_NS, 10 * 1000 * 1000);
   declare_parameter(NUM_LOOPS, 10000);
+  declare_parameter(DEBUG_PRINT, false);
 
   // setup reports
   ping_wakeup_report_.init(
@@ -46,15 +48,17 @@ void TwoWaysNode::setup_ping_publisher()
   auto qos = this->tw_options_.qos;
   auto period_ns = get_parameter(PERIOD_NS).get_value<int>();
   auto num_loops = get_parameter(NUM_LOOPS).get_value<int>();
+  auto debug_print = get_parameter(DEBUG_PRINT).get_value<bool>();
 
-  std::cout << "period_ns: " << period_ns << std::endl;
-  std::cout << "num_loops: " << num_loops << std::endl;
+  std::cout << PERIOD_NS   << ": " << period_ns << std::endl;
+  std::cout << NUM_LOOPS   << ": " << num_loops << std::endl;
+  std::cout << DEBUG_PRINT << ": " << (debug_print ? "true" : "false") << std::endl;
 
   // pub
   this->ping_pub_ = this->create_publisher<twmsgs::msg::Data>(topic_name, qos);
 
   auto callback_pub =
-      [this, period_ns, num_loops]() -> void
+      [this, period_ns, num_loops, debug_print]() -> void
       {
         struct timespec time_wake_ts;
         getnow(&time_wake_ts);
@@ -82,6 +86,15 @@ void TwoWaysNode::setup_ping_publisher()
         msg.time_sent_ns = time_wake_ns;
         ping_pub_->publish(msg);
 
+        if(debug_print) {
+          struct timespec time_print;
+          getnow(&time_print);
+          std::cout << "sent ping  id = " << ping_pub_count_
+                    << " @" << timespec_to_long(&time_print)
+                    << " waked up @ " << time_wake_ns
+                    << std::endl;
+        }
+
         if(ping_pub_count_ == num_loops) {
           std::raise(SIGINT);
         }
@@ -101,6 +114,7 @@ void TwoWaysNode::setup_ping_subscriber(bool send_pong)
   auto topic_name = tw_options_.topic_name;
   auto topic_name_pong = tw_options_.topic_name_pong;
   auto qos = tw_options_.qos;
+  auto debug_print = get_parameter(DEBUG_PRINT).get_value<bool>();
 
   // pong publisher
   send_pong_ = send_pong;
@@ -110,13 +124,21 @@ void TwoWaysNode::setup_ping_subscriber(bool send_pong)
 
   // subscriber callback
   auto callback_sub =
-      [this](const twmsgs::msg::Data::SharedPtr msg) -> void
+      [this, debug_print](const twmsgs::msg::Data::SharedPtr msg) -> void
       {
         struct timespec now_ts;
         getnow(&now_ts);
         auto now_ns = timespec_to_long(&now_ts);
         ping_sub_report_.add(now_ns - msg->time_sent_ns);
         ping_sub_count_++;
+
+        if(debug_print) {
+          struct timespec time_print;
+          getnow(&time_print);
+          std::cout << "recv ping id = " << msg->data
+                    << " @" << now_ns
+                    << std::endl;
+        }
 
         if (!send_pong_) {
           return;
