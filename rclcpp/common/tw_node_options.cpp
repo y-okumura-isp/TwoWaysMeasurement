@@ -86,7 +86,7 @@ TwoWaysNodeOptions::TwoWaysNodeOptions():
 
 void TwoWaysNodeOptions::set_node_options(rclcpp::NodeOptions & node_options)
 {
-  std::cout << "imp = " << (use_intra_process_comms == TRUE ? "true" : "false") << std::endl;
+  std::cout << "use_intra_process_comms = " << (use_intra_process_comms == TRUE ? "true" : "false") << std::endl;
   node_options.use_intra_process_comms(use_intra_process_comms == TRUE);
 }
 
