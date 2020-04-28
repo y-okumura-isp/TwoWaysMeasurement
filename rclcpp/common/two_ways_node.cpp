@@ -66,12 +66,12 @@ void TwoWaysNode::setup_ping_publisher()
         // calc wakeup jitter
         struct timespec now_expect_diff_ts;
         subtract_timespecs(&time_wake_ts, &expect_ts_, &now_expect_diff_ts);
-        ping_wakeup_report_.add(timespec_to_long(&now_expect_diff_ts));
+        ping_wakeup_report_.add(_timespec_to_long(&now_expect_diff_ts));
         struct timespec diff_from_last_wakeup_ts;
         subtract_timespecs(&time_wake_ts, &last_wake_ts_, &diff_from_last_wakeup_ts);
         // minus period because distribution mean is period_ns.
         subtract_timespecs(&diff_from_last_wakeup_ts, &period_ts_, &diff_from_last_wakeup_ts);
-        diff_wakeup_report_.add(timespec_to_long(&diff_from_last_wakeup_ts));
+        diff_wakeup_report_.add(_timespec_to_long(&diff_from_last_wakeup_ts));
 
         // prepere to next
         add_timespecs(&epoch_ts_, &period_ts_, &expect_ts_);
@@ -82,15 +82,17 @@ void TwoWaysNode::setup_ping_publisher()
         twmsgs::msg::Data msg;
         msg.data = ping_pub_count_;
         // msg.data = "HelloWorld" + std::to_string(this->ping_pub_count_);
-        auto time_wake_ns = timespec_to_long(&time_wake_ts);
+        auto time_wake_ns = _timespec_to_long(&time_wake_ts);
         msg.time_sent_ns = time_wake_ns;
         ping_pub_->publish(msg);
 
         if(debug_print) {
           struct timespec time_print;
           getnow(&time_print);
-          std::cout << "sent ping  id = " << ping_pub_count_
-                    << " @" << timespec_to_long(&time_print)
+          std::cout << "time_print.tv_sec: " << time_print.tv_sec << " "
+                    << "time_print.tv_nsec: " << time_print.tv_nsec << std::endl;
+          std::cout << "sent ping id = " << ping_pub_count_
+                    << " @" << _timespec_to_long(&time_print)
                     << " waked up @ " << time_wake_ns
                     << std::endl;
         }
@@ -128,7 +130,7 @@ void TwoWaysNode::setup_ping_subscriber(bool send_pong)
       {
         struct timespec now_ts;
         getnow(&now_ts);
-        auto now_ns = timespec_to_long(&now_ts);
+        auto now_ns = _timespec_to_long(&now_ts);
         ping_sub_report_.add(now_ns - msg->time_sent_ns);
         ping_sub_count_++;
 
@@ -179,7 +181,7 @@ void TwoWaysNode::setup_pong_subscriber()
         struct timespec now;
         getnow(&now);
 
-        auto now_ns = timespec_to_long(&now);
+        auto now_ns = _timespec_to_long(&now);
         ping_pong_report_.add(now_ns - msg->time_sent_ns);
         pong_sub_report_.add(now_ns - msg->time_sent_pong_ns);
         pong_sub_count_++;

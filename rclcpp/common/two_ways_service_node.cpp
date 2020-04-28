@@ -27,12 +27,12 @@ bool TwoWaysServiceNode::setup_ping_client()
         // calc wakeup jitter
         struct timespec now_expect_diff_ts;
         subtract_timespecs(&time_wake_ts, &expect_ts_, &now_expect_diff_ts);
-        ping_wakeup_report_.add(timespec_to_long(&now_expect_diff_ts));
+        ping_wakeup_report_.add(_timespec_to_long(&now_expect_diff_ts));
         struct timespec diff_from_last_wakeup_ts;
         subtract_timespecs(&time_wake_ts, &last_wake_ts_, &diff_from_last_wakeup_ts);
         // minus period because distribution mean is period_ns.
         subtract_timespecs(&diff_from_last_wakeup_ts, &period_ts_, &diff_from_last_wakeup_ts);
-        diff_wakeup_report_.add(timespec_to_long(&diff_from_last_wakeup_ts));
+        diff_wakeup_report_.add(_timespec_to_long(&diff_from_last_wakeup_ts));
 
         // prepere to next
         add_timespecs(&epoch_ts_, &period_ts_, &expect_ts_);
@@ -40,7 +40,7 @@ bool TwoWaysServiceNode::setup_ping_client()
         last_wake_ts_ = time_wake_ts;
 
         // send request
-        auto time_wake_ns = timespec_to_long(&time_wake_ts);
+        auto time_wake_ns = _timespec_to_long(&time_wake_ts);
         req->time_sent_ns = time_wake_ns;
         req->data = ping_send_count_;
 
@@ -52,7 +52,7 @@ bool TwoWaysServiceNode::setup_ping_client()
             {
               struct timespec time_get_pong_ts;
               getnow(&time_get_pong_ts);
-              auto time_get_pong_ns = timespec_to_long(&time_get_pong_ts);
+              auto time_get_pong_ns = _timespec_to_long(&time_get_pong_ts);
 
               // std::cout << "ping-pong" << std::endl;
               auto result = future.get();
@@ -98,7 +98,7 @@ bool TwoWaysServiceNode::setup_ping_service()
 
         struct timespec now;
         getnow(&now);
-        auto now_ns = timespec_to_long(&now);
+        auto now_ns = _timespec_to_long(&now);
         ping_sub_report_.add(now_ns - request->time_sent_ns);
 
         response->time_sent_ns = now_ns;

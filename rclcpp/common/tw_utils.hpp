@@ -44,4 +44,10 @@ inline void getnow(struct timespec *t)
   clock_gettime(CLOCK_MONOTONIC_RAW, t);
 }
 
+inline int64_t _timespec_to_long(const struct timespec *t)
+{
+  const int64_t nsec_per_sec = 1000 * 1000 * 1000;
+  return (int64_t)t->tv_sec * nsec_per_sec + (int64_t)t->tv_nsec;
+}
+
 #endif  // TW_UTILS_HPP_
