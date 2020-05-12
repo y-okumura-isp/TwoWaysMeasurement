@@ -49,3 +49,25 @@ void JitterReport::print(const std::string & prefix)
   std::cout << std::endl;
 
 }
+
+void JitterReportWithSkip::init(int bin_size, int round_ns, int num_skip)
+{
+  jr_.init(bin_size, round_ns);
+  num_skip_ = num_skip;
+  num_skipped_ = 0;
+}
+
+void JitterReportWithSkip::add(int ns)
+{
+  if(num_skipped_ < num_skip_) {
+    num_skipped_++;
+    return;
+  }
+  jr_.add(ns);
+}
+
+void JitterReportWithSkip::print(const std::string & prefix)
+{
+  jr_.print(prefix);
+}
+

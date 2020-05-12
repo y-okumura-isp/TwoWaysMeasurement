@@ -25,13 +25,27 @@ public:
   void add(int ns);
   void print(const std::string & prefix);
 
-private:
   std::vector<int> histogram_;
+
+private:
   int bin_size_;
   int round_ns_;
   int max_ns_;
   long accum_;
   int cnt_;
+};
+
+class JitterReportWithSkip
+{
+public:
+  void init(int bin_size, int round_ns, int num_skip);
+  void add(int ns);
+  void print(const std::string & prefix);
+
+private:
+  JitterReport jr_;
+  int num_skip_;
+  int num_skipped_;
 };
 
 inline void getnow(struct timespec *t)
