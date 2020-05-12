@@ -71,3 +71,7 @@ void JitterReportWithSkip::print(const std::string & prefix)
   jr_.print(prefix);
 }
 
+std::vector<int> JitterReportWithSkip::getHistogram() const
+{
+  return jr_.histogram_;
+}

@@ -41,6 +41,7 @@ public:
   void init(int bin_size, int round_ns, int num_skip);
   void add(int ns);
   void print(const std::string & prefix);
+  std::vector<int> getHistogram() const;
 
 private:
   JitterReport jr_;
