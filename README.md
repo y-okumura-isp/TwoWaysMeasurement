@@ -39,15 +39,16 @@ colcon build --symlink-install --packages-select tw_rclcpp twmsgs
 
 Available options
 
-| type           | option          | default value | comment                                  |
-|----------------|-----------------|--------------:|------------------------------------------|
-| command option | --sched-rrts    |           off | use RR-TS scheduler                      |
-|                | --sched-rrrr    |           off | use RR-RR scheduler                      |
-|                | --ipm           |           off | use intra process manager(communication) |
-|                | --round-ns <ns> |          1000 | histogram bin width in [ns]              |
-| parameter      | period_ns       |    10,000,000 | timer period[ns]                         |
-|                | num_loops       |        10,000 | number of loops                          |
-|                | debug_print     |         false | print debug message                      |
+| type           | option           | default value | comment                                        |
+|----------------|------------------|--------------:|------------------------------------------------|
+| command option | --sched-rrts     |           off | use RR-TS scheduler                            |
+|                | --sched-rrrr     |           off | use RR-RR scheduler                            |
+|                | --ipm            |           off | use intra process manager(communication)       |
+|                | --round-ns <ns>  |          1000 | histogram bin width in [ns]                    |
+|                | --num-skip <num> |            10 | skip first N event to prevent initial overhead |
+| parameter      | period_ns        |    10,000,000 | timer period[ns]                               |
+|                | num_loops        |        10,000 | number of loops                                |
+|                | debug_print      |         false | print debug message                            |
 
 
 # Common Output
