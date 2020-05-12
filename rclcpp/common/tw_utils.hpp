@@ -38,7 +38,7 @@ private:
 class JitterReportWithSkip
 {
 public:
-  void init(int bin_size, int round_ns, int num_skip);
+  void init(int bin_size, int round_ns, int num_skip=10);
   void add(int ns);
   void print(const std::string & prefix);
   std::vector<int> getHistogram() const;

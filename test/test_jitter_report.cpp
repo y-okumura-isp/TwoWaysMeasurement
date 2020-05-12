@@ -29,7 +29,28 @@ TEST(JitterReportTest, InitAdd) {
   EXPECT_EQ(jr.histogram_[9], 2);
 }
 
-TEST(JitterReportWithSkip, InitAdd) {
+// default num_skip
+TEST(JitterReportWithSkip, InitAddDefault) {
+  JitterReportWithSkip jr;
+  int bin_size = 10;
+  int round = 5;
+
+  jr.init(bin_size, round);
+  ASSERT_EQ(jr.getHistogram().size(), (unsigned int) bin_size);
+
+  for(int i=0; i<10; i++) {
+    jr.add(0); // skip
+  }
+  for(int i=0; i<bin_size; i++) {
+    EXPECT_EQ(jr.getHistogram()[i], 0);
+  }
+
+  jr.add(0); // skip
+  ASSERT_EQ(jr.getHistogram().size(), (unsigned int) bin_size);
+}
+
+// set num_skip
+TEST(JitterReportWithSkip, InitAddSetNumSkip) {
   JitterReportWithSkip jr;
   int bin_size = 10;
   int round = 5;
