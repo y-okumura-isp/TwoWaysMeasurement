@@ -10,6 +10,7 @@ struct JitterReportOptions
 {
   int bin;
   int round_ns;
+  int num_skip;
 };
 
 #define SET_REALTIME_SETTING_RRRR(tw_option) \
@@ -81,7 +82,7 @@ public:
   int use_intra_process_comms; // 0: false, 1: true
 
 private:
-  void init_reports(int bin, int round_ns);
+  void init_reports(int bin, int round_ns, int num_skip);
 
 };
 

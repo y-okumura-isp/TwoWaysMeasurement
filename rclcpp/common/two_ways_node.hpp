@@ -74,15 +74,15 @@ private:
   bool send_pong_;
 
   // wakeup jitter report
-  JitterReport ping_wakeup_report_;
+  JitterReportWithSkip ping_wakeup_report_;
   // wakeup jitter from last wakeup
-  JitterReport diff_wakeup_report_;
+  JitterReportWithSkip diff_wakeup_report_;
   // sub jitter report
-  JitterReport ping_sub_report_;
+  JitterReportWithSkip ping_sub_report_;
   // pong sub jitter report
-  JitterReport pong_sub_report_;
+  JitterReportWithSkip pong_sub_report_;
   // ping-pong jitter report
-  JitterReport ping_pong_report_;
+  JitterReportWithSkip ping_pong_report_;
 
 };
 

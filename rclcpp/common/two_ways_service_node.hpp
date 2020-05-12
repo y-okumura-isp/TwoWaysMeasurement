@@ -19,7 +19,7 @@ public:
       const rclcpp::NodeOptions & options)
       : Node(node_name, tw_options.namespace_, options), tw_options_(tw_options)
   {
-    JitterReport* reports[] = {
+    JitterReportWithSkip* reports[] = {
       &ping_wakeup_report_,
       &diff_wakeup_report_,
       &ping_sub_report_,
@@ -67,15 +67,15 @@ private:
   int ping_recv_count_ = 0;
 
   // wakeup jitter report
-  JitterReport ping_wakeup_report_;
+  JitterReportWithSkip ping_wakeup_report_;
   // wakeup jitter from last wakeup
-  JitterReport diff_wakeup_report_;
+  JitterReportWithSkip diff_wakeup_report_;
   // sub jitter report
-  JitterReport ping_sub_report_;
+  JitterReportWithSkip ping_sub_report_;
   // pong_recv - pong_send jitter report
-  JitterReport pong_trans_report_;
+  JitterReportWithSkip pong_trans_report_;
   // ping-pong jitter report
-  JitterReport ping_pong_report_;
+  JitterReportWithSkip ping_pong_report_;
 };
 
 #endif  // TWO_WAYS_SERVICE_NODE_HPP_

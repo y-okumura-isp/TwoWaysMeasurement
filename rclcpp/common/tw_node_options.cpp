@@ -20,6 +20,7 @@ using TLSFAllocator = tlsf_heap_allocator<T>;
 
 const int REPORT_BIN_DEFAULT = 600;
 const int REPORT_ROUND_NS_DEFAULT = 1000;
+const int REPORT_NUM_SKIP_DEFAULT = 10;
 
 TwoWaysNodeOptions::TwoWaysNodeOptions(int argc, char *argv[])
     : TwoWaysNodeOptions()
@@ -37,23 +38,39 @@ TwoWaysNodeOptions::TwoWaysNodeOptions(int argc, char *argv[])
     {"sched-rrrr",      no_argument,            &sched_rrrr,                    TRUE},
     {"ipm",             no_argument,            &use_intra_process_comms,       TRUE},
     {"round-ns",        required_argument,      0,                              'i'},
+    {"num-skip",        required_argument,      0,                              'r'},
     {0,                 0,                      0,                               0},
   };
 
   int longindex = 0;
-  int round_ns = 0;
+  int tmp = -1;
+  int round_ns = REPORT_ROUND_NS_DEFAULT;
+  int num_skip = REPORT_NUM_SKIP_DEFAULT;
+  bool needs_reinit = false;
   while ((c=getopt_long(argc, argv, optstring.c_str(), longopts, &longindex)) != -1) {
     switch(c)
     {
       case('i'):
-        round_ns = std::stoi(optarg);
-        if(round_ns > 0) {
-          init_reports(REPORT_BIN_DEFAULT, round_ns);
+        tmp = std::stoi(optarg);
+        if(tmp > 0) {
+          round_ns = tmp;
+          needs_reinit = true;
         }
         break;
+      case('r'):
+        tmp = std::stoi(optarg);
+        if(tmp > 0) {
+          num_skip = tmp;
+          needs_reinit = true;
+        }
       default:
         break;
     }
+  }
+
+  if(needs_reinit) {
+    std::cout << "num_skip: " << num_skip << std::endl;
+    init_reports(REPORT_BIN_DEFAULT, round_ns, num_skip);
   }
 
   optind = _optind;
@@ -81,7 +98,7 @@ TwoWaysNodeOptions::TwoWaysNodeOptions():
     use_message_pool_memory_strategy(true),
     use_intra_process_comms(FALSE)
 {
-  init_reports(REPORT_BIN_DEFAULT, REPORT_ROUND_NS_DEFAULT);
+  init_reports(REPORT_BIN_DEFAULT, REPORT_ROUND_NS_DEFAULT, REPORT_NUM_SKIP_DEFAULT);
 }
 
 void TwoWaysNodeOptions::set_node_options(rclcpp::NodeOptions & node_options)
@@ -200,14 +217,17 @@ bool TwoWaysNodeOptions::set_realtime_settings()
   return true;
 }
 
-void TwoWaysNodeOptions::init_reports(int bin, int round_ns)
+void TwoWaysNodeOptions::init_reports(int bin, int round_ns, int num_skip)
 {
   common_report_option.bin = bin;
   common_report_option.round_ns = round_ns;
+  common_report_option.num_skip = num_skip;
 
   ping_wakeup.bin = bin;
   ping_wakeup.round_ns = round_ns;
+  ping_wakeup.num_skip = num_skip;
 
   ping_sub.bin = bin;
   ping_sub.round_ns = round_ns;
+  ping_sub.num_skip = num_skip;
 }
