@@ -68,8 +68,6 @@ public:
   // wake up period[ns]
   const int period_ns;
   JitterReportOptions common_report_option;
-  JitterReportOptions ping_wakeup;
-  JitterReportOptions ping_sub;
 
   /////// test conditions
   // number of loops
@@ -82,7 +80,7 @@ public:
   int use_intra_process_comms; // 0: false, 1: true
 
 private:
-  void init_reports(int bin, int round_ns, int num_skip);
+  void init_report_option(int bin, int round_ns, int num_skip);
 
 };
 

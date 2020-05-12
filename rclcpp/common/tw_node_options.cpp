@@ -70,7 +70,7 @@ TwoWaysNodeOptions::TwoWaysNodeOptions(int argc, char *argv[])
 
   if(needs_reinit) {
     std::cout << "num_skip: " << num_skip << std::endl;
-    init_reports(REPORT_BIN_DEFAULT, round_ns, num_skip);
+    init_report_option(REPORT_BIN_DEFAULT, round_ns, num_skip);
   }
 
   optind = _optind;
@@ -98,7 +98,7 @@ TwoWaysNodeOptions::TwoWaysNodeOptions():
     use_message_pool_memory_strategy(true),
     use_intra_process_comms(FALSE)
 {
-  init_reports(REPORT_BIN_DEFAULT, REPORT_ROUND_NS_DEFAULT, REPORT_NUM_SKIP_DEFAULT);
+  init_report_option(REPORT_BIN_DEFAULT, REPORT_ROUND_NS_DEFAULT, REPORT_NUM_SKIP_DEFAULT);
 }
 
 void TwoWaysNodeOptions::set_node_options(rclcpp::NodeOptions & node_options)
@@ -217,17 +217,9 @@ bool TwoWaysNodeOptions::set_realtime_settings()
   return true;
 }
 
-void TwoWaysNodeOptions::init_reports(int bin, int round_ns, int num_skip)
+void TwoWaysNodeOptions::init_report_option(int bin, int round_ns, int num_skip)
 {
   common_report_option.bin = bin;
   common_report_option.round_ns = round_ns;
   common_report_option.num_skip = num_skip;
-
-  ping_wakeup.bin = bin;
-  ping_wakeup.round_ns = round_ns;
-  ping_wakeup.num_skip = num_skip;
-
-  ping_sub.bin = bin;
-  ping_sub.round_ns = round_ns;
-  ping_sub.num_skip = num_skip;
 }

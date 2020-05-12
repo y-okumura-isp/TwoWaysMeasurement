@@ -25,26 +25,17 @@ TwoWaysNode::TwoWaysNode(
   declare_parameter(DEBUG_PRINT, false);
 
   // setup reports
-  ping_wakeup_report_.init(
-      tw_options.ping_wakeup.bin,
-      tw_options.ping_wakeup.round_ns,
-      tw_options.ping_wakeup.num_skip);
-  diff_wakeup_report_.init(
-      tw_options.common_report_option.bin,
-      tw_options.common_report_option.round_ns,
-      tw_options.common_report_option.num_skip);
-  ping_sub_report_.init(
-      tw_options.ping_sub.bin,
-      tw_options.ping_sub.round_ns,
-      tw_options.ping_sub.num_skip);
-  pong_sub_report_.init(
-      tw_options.ping_sub.bin,
-      tw_options.ping_sub.round_ns,
-      tw_options.ping_sub.num_skip);
-  ping_pong_report_.init(
-      tw_options.ping_sub.bin,
-      tw_options.ping_sub.round_ns,
-      tw_options.ping_sub.num_skip);
+  JitterReportWithSkip* reports[] = {
+      &ping_wakeup_report_,
+      &diff_wakeup_report_,
+      &ping_sub_report_,
+      &pong_sub_report_,
+      &ping_pong_report_};
+    for(auto r : reports) {
+      r->init(tw_options.common_report_option.bin,
+              tw_options.common_report_option.round_ns,
+              tw_options.common_report_option.num_skip);
+    }
 }
 
 void TwoWaysNode::setup_ping_publisher()
