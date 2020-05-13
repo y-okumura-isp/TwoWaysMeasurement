@@ -59,10 +59,16 @@ void TwoWaysNode::setup_ping_publisher()
         struct timespec time_wake_ts;
         getnow(&time_wake_ts);
 
+        int64_t wake_latency = 0;
+        if (rcl_timer_get_time_since_last_call(
+                &(*this->ping_timer_->get_timer_handle()), &wake_latency) != RCL_RET_OK) {
+          return;
+        }
+
         // calc wakeup jitter
-        struct timespec now_expect_diff_ts;
-        subtract_timespecs(&time_wake_ts, &expect_ts_, &now_expect_diff_ts);
-        ping_wakeup_report_.add(_timespec_to_long(&now_expect_diff_ts));
+        ping_wakeup_report_.add(wake_latency);
+
+        // calc difference from last callback
         struct timespec diff_from_last_wakeup_ts;
         subtract_timespecs(&time_wake_ts, &last_wake_ts_, &diff_from_last_wakeup_ts);
         // minus period because distribution mean is period_ns.
