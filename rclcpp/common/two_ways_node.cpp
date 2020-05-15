@@ -59,13 +59,12 @@ void TwoWaysNode::setup_ping_publisher()
         struct timespec time_wake_ts;
         getnow(&time_wake_ts);
 
+        // calc wakeup jitter
         int64_t wake_latency = 0;
         if (rcl_timer_get_time_since_last_call(
                 &(*this->ping_timer_->get_timer_handle()), &wake_latency) != RCL_RET_OK) {
           return;
         }
-
-        // calc wakeup jitter
         ping_wakeup_report_.add(wake_latency);
 
         // calc difference from last callback
