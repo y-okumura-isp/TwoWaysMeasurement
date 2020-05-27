@@ -5,7 +5,7 @@
 
 #include "tw_utils.hpp"
 
-void JitterReport::init(int bin_size, int round_ns)
+void JitterReport::init(int64_t bin_size, int64_t round_ns)
 {
   bin_size_ = bin_size;
   round_ns_ = round_ns;
@@ -15,9 +15,9 @@ void JitterReport::init(int bin_size, int round_ns)
   cnt_ = 0;
 }
 
-void JitterReport::add(int ns)
+void JitterReport::add(int64_t ns)
 {
-  int idx = ns / round_ns_;
+  int64_t idx = ns / round_ns_;
   if (idx < 0) {
     idx = 0;
   }
@@ -41,7 +41,7 @@ void JitterReport::print(const std::string & prefix)
   std::cout << "    ";
   std::for_each(histogram_.begin(),
                 histogram_.end(),
-                [](int x)
+                [](int64_t x)
                 {
                   std::cout << x << ", ";
                 });
@@ -50,14 +50,14 @@ void JitterReport::print(const std::string & prefix)
 
 }
 
-void JitterReportWithSkip::init(int bin_size, int round_ns, int num_skip)
+void JitterReportWithSkip::init(int64_t bin_size, int64_t round_ns, int64_t num_skip)
 {
   jr_.init(bin_size, round_ns);
   num_skip_ = num_skip;
   num_skipped_ = 0;
 }
 
-void JitterReportWithSkip::add(int ns)
+void JitterReportWithSkip::add(int64_t ns)
 {
   if(num_skipped_ < num_skip_) {
     num_skipped_++;

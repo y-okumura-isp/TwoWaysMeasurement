@@ -21,32 +21,32 @@
 class JitterReport
 {
 public:
-  void init(int bin_size, int round_ns);
-  void add(int ns);
+  void init(int64_t bin_size, int64_t round_ns);
+  void add(int64_t ns);
   void print(const std::string & prefix);
 
   std::vector<int> histogram_;
 
 private:
-  int bin_size_;
-  int round_ns_;
-  int max_ns_;
+  int64_t bin_size_;
+  int64_t round_ns_;
+  int64_t max_ns_;
   long accum_;
-  int cnt_;
+  int64_t cnt_;
 };
 
 class JitterReportWithSkip
 {
 public:
-  void init(int bin_size, int round_ns, int num_skip=10);
-  void add(int ns);
+  void init(int64_t bin_size, int64_t round_ns, int64_t num_skip=10);
+  void add(int64_t ns);
   void print(const std::string & prefix);
   std::vector<int> getHistogram() const;
 
 private:
   JitterReport jr_;
-  int num_skip_;
-  int num_skipped_;
+  int64_t num_skip_;
+  int64_t num_skipped_;
 };
 
 inline void getnow(struct timespec *t)
