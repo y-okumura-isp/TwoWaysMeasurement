@@ -1,4 +1,3 @@
-#include <rosidl_generator_cpp/traits.hpp>
 #include <rclcpp/strategies/message_pool_memory_strategy.hpp>
 #include <rttest/utils.h>
 #include "two_ways_node.hpp"
@@ -27,15 +26,19 @@ TwoWaysNode::TwoWaysNode(
   // setup reports
   JitterReportWithSkip* reports[] = {
       &ping_wakeup_report_,
-      &diff_wakeup_report_,
       &ping_sub_report_,
       &pong_sub_report_,
       &ping_pong_report_};
-    for(auto r : reports) {
-      r->init(tw_options.common_report_option.bin,
-              tw_options.common_report_option.round_ns,
-              tw_options.common_report_option.num_skip);
-    }
+  for(auto r : reports) {
+    r->init(tw_options.common_report_option.bin,
+            tw_options.common_report_option.round_ns,
+            tw_options.common_report_option.num_skip);
+  }
+  diff_wakeup_report_.init(
+      tw_options.common_report_option.bin,
+      tw_options.common_report_option.round_ns,
+      tw_options.common_report_option.num_skip,
+      - tw_options.common_report_option.bin/2 * tw_options.common_report_option.round_ns);
 }
 
 void TwoWaysNode::setup_ping_publisher()
@@ -155,21 +158,25 @@ void TwoWaysNode::setup_ping_subscriber(bool send_pong)
         pong_pub_count_++;
       };
 
-  // create subscriber
   rclcpp::SubscriptionOptions subscription_options;
-  ping_sub_ =
-      create_subscription<twmsgs::msg::Data>(topic_name,
-                                             qos,
-                                             callback_sub,
-                                             subscription_options);
-
-  // set message pool memory strategy
   if (tw_options_.use_message_pool_memory_strategy) {
     auto data_msg_strategy =
         std::make_shared<MessagePoolMemoryStrategy<twmsgs::msg::Data, 1>>();
-    ping_sub_->set_message_memory_strategy(data_msg_strategy);
+    ping_sub_ =
+        create_subscription<twmsgs::msg::Data>(
+            topic_name,
+            qos,
+            callback_sub,
+            subscription_options,
+            data_msg_strategy);
+  } else {
+    ping_sub_ =
+        create_subscription<twmsgs::msg::Data>(
+            topic_name,
+            qos,
+            callback_sub,
+            subscription_options);
   }
-
 }
 
 void TwoWaysNode::setup_pong_subscriber()

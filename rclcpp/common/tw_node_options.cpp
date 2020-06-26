@@ -109,7 +109,7 @@ void TwoWaysNodeOptions::set_node_options(rclcpp::NodeOptions & node_options)
 
 rclcpp::executor::Executor::SharedPtr TwoWaysNodeOptions::get_executor()
 {
-  rclcpp::executor::ExecutorArgs args;
+  rclcpp::ExecutorOptions args;
 
   if (use_tlsf_allocator) {
     rclcpp::memory_strategy::MemoryStrategy::SharedPtr memory_strategy =
