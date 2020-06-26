@@ -8,25 +8,68 @@ TEST(JitterReportTest, InitAdd) {
   int round = 5;
 
   jr.init(bin_size, round);
-  ASSERT_EQ(jr.histogram_.size(), (unsigned int) bin_size);
+  ASSERT_EQ(jr.getHistogram().size(), (unsigned int) bin_size);
 
   jr.add(0); // add to histogram_[0]
-  EXPECT_EQ(jr.histogram_[0], 1);
+  EXPECT_EQ(jr.getHistogram()[0], 1);
 
   jr.add(4); // add to histogram_[0]
-  EXPECT_EQ(jr.histogram_[0], 2);
+  EXPECT_EQ(jr.getHistogram()[0], 2);
 
   jr.add(5); // add to histogram_[0]
-  EXPECT_EQ(jr.histogram_[1], 1);
+  EXPECT_EQ(jr.getHistogram()[1], 1);
 
   jr.add(44);
-  EXPECT_EQ(jr.histogram_[8], 1);
+  EXPECT_EQ(jr.getHistogram()[8], 1);
 
   jr.add(45);
-  EXPECT_EQ(jr.histogram_[9], 1);
+  EXPECT_EQ(jr.getHistogram()[9], 1);
 
   jr.add(50);
-  EXPECT_EQ(jr.histogram_[9], 2);
+  EXPECT_EQ(jr.getHistogram()[9], 2);
+}
+
+TEST(JitterReport, WithMinusMin) {
+  JitterReport jr;
+  int64_t bin_size = 10;
+  int64_t round = 5;
+  int64_t min = -10;
+
+  jr.init(bin_size, round, min);
+  jr.add(-10);
+  EXPECT_EQ(jr.getHistogram()[0], 1);
+
+  jr.add(-5);
+  EXPECT_EQ(jr.getHistogram()[1], 1);
+
+  jr.add(0);
+  EXPECT_EQ(jr.getHistogram()[2], 1);
+
+  EXPECT_EQ(jr.get_max_ns(), 0);
+  EXPECT_EQ(jr.get_average(), (-10-5)/3);
+}
+
+TEST(JitterReport, WithPlusMin) {
+  JitterReport jr;
+  int64_t bin_size = 10;
+  int64_t round = 5;
+  int64_t min = 10;
+
+  jr.init(bin_size, round, min);
+  jr.add(0);
+  EXPECT_EQ(jr.getHistogram()[0], 1);
+
+  jr.add(5);
+  EXPECT_EQ(jr.getHistogram()[0], 2);
+
+  jr.add(10);
+  EXPECT_EQ(jr.getHistogram()[0], 3);
+
+  jr.add(15);
+  EXPECT_EQ(jr.getHistogram()[1], 1);
+
+  EXPECT_EQ(jr.get_max_ns(), 15);
+  EXPECT_EQ(jr.get_average(), (5+10+15)/4);
 }
 
 // default num_skip

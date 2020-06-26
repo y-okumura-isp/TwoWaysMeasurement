@@ -21,16 +21,27 @@
 class JitterReport
 {
 public:
-  void init(int64_t bin_size, int64_t round_ns);
+  void init(int64_t bin_size, int64_t round_ns, int64_t min=0);
   void add(int64_t ns);
   void print(const std::string & prefix);
+  std::vector<int64_t> getHistogram() const {
+    return histogram_;
+  }
 
-  std::vector<int> histogram_;
+  int64_t get_max_ns() const { return max_ns_; }
+  int64_t get_average() const { return accum_ / cnt_; }
 
 private:
+
   int64_t bin_size_;
   int64_t round_ns_;
+  int64_t min_;
+
+  // histogram
+  std::vector<int64_t> histogram_;
+  // max value
   int64_t max_ns_;
+  // accumurator & count to calculate average
   long accum_;
   int64_t cnt_;
 };
@@ -38,10 +49,10 @@ private:
 class JitterReportWithSkip
 {
 public:
-  void init(int64_t bin_size, int64_t round_ns, int64_t num_skip=10);
+  void init(int64_t bin_size, int64_t round_ns, int64_t num_skip=10, int64_t min=0);
   void add(int64_t ns);
   void print(const std::string & prefix);
-  std::vector<int> getHistogram() const;
+  std::vector<int64_t> getHistogram() const;
 
 private:
   JitterReport jr_;

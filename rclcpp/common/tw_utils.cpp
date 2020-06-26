@@ -5,10 +5,11 @@
 
 #include "tw_utils.hpp"
 
-void JitterReport::init(int64_t bin_size, int64_t round_ns)
+void JitterReport::init(int64_t bin_size, int64_t round_ns, int64_t min)
 {
   bin_size_ = bin_size;
   round_ns_ = round_ns;
+  min_ = min;
   max_ns_ = 0;
   histogram_.resize(bin_size);
   accum_ = 0;
@@ -17,7 +18,7 @@ void JitterReport::init(int64_t bin_size, int64_t round_ns)
 
 void JitterReport::add(int64_t ns)
 {
-  int64_t idx = ns / round_ns_;
+  int64_t idx = (ns - min_) / round_ns_;
   if (idx < 0) {
     idx = 0;
   }
@@ -37,6 +38,7 @@ void JitterReport::print(const std::string & prefix)
   std::cout << "  histogram"
             << " round_ns = " << round_ns_
             << " bin = " << bin_size_
+            << " min = " << min_
             << std::endl;
   std::cout << "    ";
   std::for_each(histogram_.begin(),
@@ -50,9 +52,9 @@ void JitterReport::print(const std::string & prefix)
 
 }
 
-void JitterReportWithSkip::init(int64_t bin_size, int64_t round_ns, int64_t num_skip)
+void JitterReportWithSkip::init(int64_t bin_size, int64_t round_ns, int64_t num_skip, int64_t min)
 {
-  jr_.init(bin_size, round_ns);
+  jr_.init(bin_size, round_ns, min);
   num_skip_ = num_skip;
   num_skipped_ = 0;
 }
@@ -71,7 +73,7 @@ void JitterReportWithSkip::print(const std::string & prefix)
   jr_.print(prefix);
 }
 
-std::vector<int> JitterReportWithSkip::getHistogram() const
+std::vector<int64_t> JitterReportWithSkip::getHistogram() const
 {
-  return jr_.histogram_;
+  return jr_.getHistogram();
 }
