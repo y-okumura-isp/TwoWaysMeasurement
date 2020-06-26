@@ -13,6 +13,7 @@ int main(int argc, char *argv[])
   tw_options.set_node_options(node_options);
   auto n = std::make_shared<OneShotTimerTestNode>(tw_options, node_options);
   n->setup_oneshot_trigger();
+  n->setup_periodic_trigger();
 
   exec->add_node(n);
   SET_REALTIME_SETTING_RRTS(tw_options);
