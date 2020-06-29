@@ -52,10 +52,18 @@ Available options
 |                | --round-ns <ns>   |          1000 | histogram bin width in [ns]                    |
 |                | --num-skip <num>  |            10 | skip first N event to prevent initial overhead |
 |                | --static-executor |               | use StaticSingleThreadedExecutor               |
+|                | --main-sched      |            TS | scheduling policy of main thread               |
+|                | --child-sched     |            TS | scheduling policy of child thread              |
+|                | --run-type        |          1e1n | executor/node setting. see below               |
 | parameter      | period_ns         |    10,000,000 | timer period[ns]                               |
 |                | num_loops         |        10,000 | number of loops                                |
 |                | debug_print       |         false | print debug message                            |
 
+run-type
+| value | meaning             |
+|-------|---------------------|
+| 1e1n  | 1 executor, 1 node  |
+| 1e2n  | 1 executor, 2 nodes |
 
 # Common Output
 - Processes outputs following log to stdout as following.
