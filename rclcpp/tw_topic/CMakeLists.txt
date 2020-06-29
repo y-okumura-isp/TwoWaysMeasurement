@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(tw_rclcpp_1exec_topic)
+project(tw_topic)
 
 # Default to C99
 if(NOT CMAKE_C_STANDARD)
@@ -54,25 +54,12 @@ set(DEPENDS
   rttest
   )
 
-# one exec, one node, ping
-# set(OEON tw_1exec_1node)
-# add_executable(${OEON} main_1exec_1node_pubsub.cpp ${TW_COMMON})
-# ament_target_dependencies(${OEON} ${DEPENDS})
-
-# one exec, one node, ping-pong
-set(OEON_PIPO tw_1exec_ping_pong)
-add_executable(${OEON_PIPO} main_1exec_ping_pong.cpp ${TW_COMMON})
-ament_target_dependencies(${OEON_PIPO} ${DEPENDS})
-
-# one exec, two node, ping
-# set(OETN tw_1exec_2node)
-# add_executable(${OETN} main_1exec_2node_pubsub.cpp ${TW_COMMON})
-# ament_target_dependencies(${OETN} ${DEPENDS})
+set(TW_PING_PONG tw_ping_pong)
+add_executable(${TW_PING_PONG} main_ping_pong.cpp ${TW_COMMON})
+ament_target_dependencies(${TW_PING_PONG} ${DEPENDS})
 
 install(TARGETS
-#  ${OEON}
-  ${OEON_PIPO}
-#  ${OETN}
+  ${TW_PING_PONG}
   DESTINATION lib/${PROJECT_NAME})
 
 ament_package()
