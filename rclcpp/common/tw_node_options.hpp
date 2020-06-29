@@ -31,6 +31,17 @@ struct JitterReportOptions
     } \
   }
 
+enum SCHED_POLICY {
+  RR98,
+  RR97,
+  TS
+};
+
+enum RunType {
+  E1N1, // 1 executor, 1 node
+  // E1N2, // 1 executor, 2 nodes
+};
+
 class TwoWaysNodeOptions {
 public:
   TwoWaysNodeOptions();
@@ -38,19 +49,32 @@ public:
   TwoWaysNodeOptions(int argc, char *argv[]);
 
   /// Init NodeOptions
-  void set_node_options(rclcpp::NodeOptions & node_options);
+  void set_node_options(rclcpp::NodeOptions & node_options) const;
 
   /// Get Executor
   rclcpp::executor::Executor::SharedPtr get_executor();
 
-  /// Realtime settings
-  bool set_realtime_settings();
+  /// Get main thread policy
+  void get_main_thread_policy(size_t &priority, int &policy) {
+    get_sched(main_sched, priority, policy);
+  }
+
+  /// Get child thread policy
+  void get_child_thread_policy(size_t &priority, int &policy) {
+    get_sched(child_sched, priority, policy);
+  }
 
   // scheduler
   int sched_rrts;  // 0: false, 1: true
   int sched_rrrr;  // 0: false, 1: true
+  SCHED_POLICY main_sched;
+  SCHED_POLICY child_sched;
+
   size_t sched_priority;
   int sched_policy;
+
+  // run type
+  RunType run_type;
 
   // executor
   int use_static_executor;
@@ -84,7 +108,9 @@ public:
 
 private:
   void init_report_option(int bin, int round_ns, int num_skip);
-
+  // convert SCHED_POLICY to size_t and int.
+  void get_sched(SCHED_POLICY sp, size_t &priority, int &policy);
+  SCHED_POLICY get_schedule_policy(const std::string &opt);
 };
 
 #endif  /* SETTING_H_ */

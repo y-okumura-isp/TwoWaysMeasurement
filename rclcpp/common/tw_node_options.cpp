@@ -1,11 +1,6 @@
-#include <malloc.h>
-#include <sys/mman.h>
-#include <sys/time.h>
-#include <sys/resource.h>
 #include <unistd.h>
 #include <getopt.h>
 
-#include <rttest/rttest.h>
 #include <rclcpp/strategies/allocator_memory_strategy.hpp>
 #include <tlsf_cpp/tlsf.hpp>
 #include "tw_node_options.hpp"
@@ -40,6 +35,8 @@ TwoWaysNodeOptions::TwoWaysNodeOptions(int argc, char *argv[])
     {"round-ns",        required_argument,      0,                              'i'},
     {"num-skip",        required_argument,      0,                              'r'},
     {"static-executor", no_argument,            &use_static_executor,           TRUE},
+    {"main-sched",      required_argument,      0,                              'm'},
+    {"child-sched",     required_argument,      0,                              'c'},
     {0,                 0,                      0,                               0},
   };
 
@@ -65,6 +62,14 @@ TwoWaysNodeOptions::TwoWaysNodeOptions(int argc, char *argv[])
           needs_reinit = true;
         }
         break;
+      case('m'): {
+        main_sched = get_schedule_policy(std::string(optarg));
+        break;
+      }
+      case('c'): {
+        child_sched = get_schedule_policy(std::string(optarg));
+        break;
+      }
       default:
         break;
     }
@@ -83,8 +88,11 @@ TwoWaysNodeOptions::TwoWaysNodeOptions(int argc, char *argv[])
 TwoWaysNodeOptions::TwoWaysNodeOptions():
     sched_rrts(0),
     sched_rrrr(0),
+    main_sched(SCHED_POLICY::TS),
+    child_sched(SCHED_POLICY::TS),
     sched_priority(98),
     sched_policy(SCHED_RR),
+    run_type(E1N1),
     use_static_executor(FALSE),
     prefault_dynamic_size(209715200UL),  // 200MB
     node_name("node"),
@@ -104,7 +112,7 @@ TwoWaysNodeOptions::TwoWaysNodeOptions():
   init_report_option(REPORT_BIN_DEFAULT, REPORT_ROUND_NS_DEFAULT, REPORT_NUM_SKIP_DEFAULT);
 }
 
-void TwoWaysNodeOptions::set_node_options(rclcpp::NodeOptions & node_options)
+void TwoWaysNodeOptions::set_node_options(rclcpp::NodeOptions & node_options) const
 {
   std::cout << "use_intra_process_comms = " << (use_intra_process_comms == TRUE ? "true" : "false") << std::endl;
   node_options.use_intra_process_comms(use_intra_process_comms == TRUE);
@@ -128,101 +136,27 @@ rclcpp::executor::Executor::SharedPtr TwoWaysNodeOptions::get_executor()
   return std::make_shared<rclcpp::executors::SingleThreadedExecutor>(args);
 }
 
-int lock_and_prefault_dynamic(size_t prefault_dynamic_size)
+void TwoWaysNodeOptions::get_sched(SCHED_POLICY sp, size_t &priority, int &policy)
 {
-  if (mlockall(MCL_CURRENT | MCL_FUTURE) != 0) {
-    perror("mlockall failed");
-    return -1;
-  }
 
-  // Turn off malloc trimming.
-  if (mallopt(M_TRIM_THRESHOLD, -1) == 0) {
-    perror("mallopt for trim threshold failed");
-    munlockall();
-    return -1;
-  }
-
-  // Turn off mmap usage.
-  if (mallopt(M_MMAP_MAX, 0) == 0) {
-    perror("mallopt for mmap failed");
-    mallopt(M_TRIM_THRESHOLD, 128 * 1024);
-    munlockall();
-    return -1;
-  }
-
-  struct rusage usage;
-  size_t page_size = sysconf(_SC_PAGESIZE);
-  getrusage(RUSAGE_SELF, &usage);
-  size_t prev_minflts = usage.ru_minflt;
-  size_t prev_majflts = usage.ru_majflt;
-  size_t encountered_minflts = 1;
-  size_t encountered_majflts = 1;
-
-  size_t array_size = sizeof(char) * 64 * page_size;
-  size_t total_size = 0;
-  size_t max_size = prefault_dynamic_size;
-  std::vector<char *> prefaulter;
-  prefaulter.reserve((size_t)(max_size / array_size));
-
-  // prefault until you see no more pagefaults
-  while (encountered_minflts > 0 || encountered_majflts > 0) {
-    char * ptr;
-    try {
-      ptr = new char[array_size];
-      memset(ptr, 0, array_size);
-      total_size += array_size;
-    } catch (std::bad_alloc & e) {
-      fprintf(stderr, "Caught exception: %s\n", e.what());
-      fprintf(stderr, "Unlocking memory and continuing.\n");
-      for (auto & ptr : prefaulter) {
-        delete[] ptr;
-      }
-
-      mallopt(M_TRIM_THRESHOLD, 128 * 1024);
-      mallopt(M_MMAP_MAX, 65536);
-      munlockall();
-      return -1;
+  switch(sp)
+  {
+    case(TS): {
+      priority = 0;
+      policy = SCHED_OTHER;
+      break;
     }
-
-    // If we reached max_size then delete created char array.
-    // This will prevent pagefault on next allocation.
-    if (total_size >= max_size) {
-      delete[] ptr;
-    } else {
-      prefaulter.push_back(ptr);
+    case(RR98): {
+      priority = 98;
+      policy = SCHED_RR;
+      break;
     }
-
-    getrusage(RUSAGE_SELF, &usage);
-    size_t current_minflt = usage.ru_minflt;
-    size_t current_majflt = usage.ru_majflt;
-    encountered_minflts = current_minflt - prev_minflts;
-    encountered_majflts = current_majflt - prev_majflts;
-    prev_minflts = current_minflt;
-    prev_majflts = current_majflt;
+    case(RR97): {
+      priority = 98;
+      policy = SCHED_RR;
+      break;
+    }
   }
-
-  for (auto & ptr : prefaulter) {
-    delete[] ptr;
-  }
-  return 0;
-}
-
-bool TwoWaysNodeOptions::set_realtime_settings()
-{
-  // scheduler
-  if (rttest_set_sched_priority(sched_priority,
-                                sched_policy) != 0) {
-    std::cerr << "Couldn't set scheduling priority and policy" << std::endl;
-    return false;
-  }
-
-  // malloc
-  if (lock_and_prefault_dynamic(prefault_dynamic_size) != 0) {
-    perror("mlockall failed");
-    return -1;
-  }
-
-  return true;
 }
 
 void TwoWaysNodeOptions::init_report_option(int bin, int round_ns, int num_skip)
@@ -230,4 +164,17 @@ void TwoWaysNodeOptions::init_report_option(int bin, int round_ns, int num_skip)
   common_report_option.bin = bin;
   common_report_option.round_ns = round_ns;
   common_report_option.num_skip = num_skip;
+}
+
+SCHED_POLICY TwoWaysNodeOptions::get_schedule_policy(const std::string &opt)
+{
+  if(opt == "RR98") {
+    return SCHED_POLICY::RR98;
+  } else if(opt == "RR97") {
+    return SCHED_POLICY::RR97;
+  } else if(opt == "TS") {
+    return SCHED_POLICY::TS;
+  } else {
+    throw std::invalid_argument("unknown policy: use RR98, RR97, TS");
+  }
 }

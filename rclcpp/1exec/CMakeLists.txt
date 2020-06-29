@@ -55,9 +55,9 @@ set(DEPENDS
   )
 
 # one exec, one node, ping
-set(OEON tw_1exec_1node)
-add_executable(${OEON} main_1exec_1node_pubsub.cpp ${TW_COMMON})
-ament_target_dependencies(${OEON} ${DEPENDS})
+# set(OEON tw_1exec_1node)
+# add_executable(${OEON} main_1exec_1node_pubsub.cpp ${TW_COMMON})
+# ament_target_dependencies(${OEON} ${DEPENDS})
 
 # one exec, one node, ping-pong
 set(OEON_PIPO tw_1exec_1node_ping_pong)
@@ -65,20 +65,20 @@ add_executable(${OEON_PIPO} main_1exec_1node_ping_pong.cpp ${TW_COMMON})
 ament_target_dependencies(${OEON_PIPO} ${DEPENDS})
 
 # one exec, two node, ping
-set(OETN tw_1exec_2node)
-add_executable(${OETN} main_1exec_2node_pubsub.cpp ${TW_COMMON})
-ament_target_dependencies(${OETN} ${DEPENDS})
+# set(OETN tw_1exec_2node)
+# add_executable(${OETN} main_1exec_2node_pubsub.cpp ${TW_COMMON})
+# ament_target_dependencies(${OETN} ${DEPENDS})
 
 # one exec, two node, ping-pong
-set(OETN_PIPO tw_1exec_2node_ping_pong)
-add_executable(${OETN_PIPO} main_1exec_2node_ping_pong.cpp ${TW_COMMON})
-ament_target_dependencies(${OETN_PIPO} ${DEPENDS})
+# set(OETN_PIPO tw_1exec_2node_ping_pong)
+# add_executable(${OETN_PIPO} main_1exec_2node_ping_pong.cpp ${TW_COMMON})
+# ament_target_dependencies(${OETN_PIPO} ${DEPENDS})
 
 install(TARGETS
-  ${OEON}
+#  ${OEON}
   ${OEON_PIPO}
-  ${OETN}
-  ${OETN_PIPO}
+#  ${OETN}
+#  ${OETN_PIPO}
   DESTINATION lib/${PROJECT_NAME})
 
 ament_package()

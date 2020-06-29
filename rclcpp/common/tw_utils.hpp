@@ -76,4 +76,13 @@ inline int64_t _timespec_to_long(const struct timespec *t)
   return (int64_t)t->tv_sec * nsec_per_sec + (int64_t)t->tv_nsec;
 }
 
+// Copied from rttest/rttest.cpp because we don't use Rttest class.
+int lock_and_prefault_dynamic(size_t prefault_dynamic_size);
+
+/// rttest_set_sched_priority wrapper
+void set_sched_priority(const std::string &thread_name,
+                        size_t priority,
+                        int policy);
+
+
 #endif  // TW_UTILS_HPP_
