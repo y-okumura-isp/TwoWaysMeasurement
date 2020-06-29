@@ -156,7 +156,7 @@ void TwoWaysNodeOptions::get_sched(SCHED_POLICY sp, size_t &priority, int &polic
       break;
     }
     case(RR97): {
-      priority = 98;
+      priority = 97;
       policy = SCHED_RR;
       break;
     }
