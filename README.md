@@ -65,6 +65,7 @@ run-type
 | 1e1n    | 1 executor, 1 node          |
 | 1e2n    | 1 executor, 2 nodes         |
 | 2e_ping | ping process in 2 executors |
+| 2e_pong | pong process in 2 executors |
 
 # Common Output
 - Processes outputs following log to stdout as following.
