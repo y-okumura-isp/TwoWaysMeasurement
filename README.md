@@ -18,6 +18,11 @@ Two Ways Test
 	- Node2 contains ping-sub + pong-pub
   - seperate above 2 Node into 2 Executors
 
+# Environment
+- Ubuntu 18.04
+  - If you want to run with scheduling option etc, you must run as root.
+- ROS 2 Foxy
+
 # Build
 
 ```
