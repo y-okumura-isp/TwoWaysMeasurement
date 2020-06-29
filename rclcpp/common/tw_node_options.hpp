@@ -38,8 +38,9 @@ enum SCHED_POLICY {
 };
 
 enum RunType {
-  E1N1, // 1 executor, 1 node
-  E1N2, // 1 executor, 2 nodes
+  E1N1,         // 1 executor, 1 node
+  E1N2,         // 1 executor, 2 nodes
+  E2_PING,      // 2 executor, pinger
 };
 
 class TwoWaysNodeOptions {

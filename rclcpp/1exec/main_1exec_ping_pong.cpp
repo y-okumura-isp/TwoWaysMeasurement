@@ -98,6 +98,40 @@ private:
   std::shared_ptr<TwoWaysNode> npub_, nsub_;
 };
 
+class Runner_2e_ping : public Runner
+{
+public:
+  Runner_2e_ping(rclcpp::executor::Executor::SharedPtr e):
+      Runner(e) {
+      std::cout << "runner = 1e2n_ping" << std::endl;
+  }
+
+  void setup(const TwoWaysNodeOptions &tw_options) override {
+    rclcpp::NodeOptions node_options;
+    tw_options.set_node_options(node_options);
+    npub_ = std::make_shared<TwoWaysNode>("main_pub_ping_pong", "ns", tw_options, node_options);
+
+    npub_->setup_ping_publisher();
+    npub_->setup_pong_subscriber();
+    exec_->add_node(npub_);
+  }
+
+  void cleanup() override {
+    exec_->remove_node(npub_);
+  }
+
+  void report() override {
+    npub_->print_ping_wakeup_report();
+    npub_->print_diff_wakeup_report();
+    npub_->print_pong_sub_report();
+    npub_->print_ping_pong_report();
+  }
+
+private:
+  std::shared_ptr<TwoWaysNode> npub_;
+};
+
+
 std::unique_ptr<Runner>
 make_runner(RunType type, rclcpp::executor::Executor::SharedPtr e)
 {
@@ -109,6 +143,10 @@ make_runner(RunType type, rclcpp::executor::Executor::SharedPtr e)
     }
     case(E1N2): {
       p.reset(new Runner_1e2n(e));
+      break;
+    }
+    case(E2_PING): {
+      p.reset(new Runner_2e_ping(e));
       break;
     }
   }

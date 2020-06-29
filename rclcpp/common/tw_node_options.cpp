@@ -189,7 +189,9 @@ RunType TwoWaysNodeOptions::parse_run_type(const std::string &type)
     return E1N1;
   } else if(type == "1e2n") {
     return E1N2;
-  } else {
+  } else if(type == "2e_ping") {
+    return E2_PING;
+  }else {
     throw std::invalid_argument("unknown run-type: 1e1n, 1e2n");
   }
 }
