@@ -37,6 +37,7 @@ TwoWaysNodeOptions::TwoWaysNodeOptions(int argc, char *argv[])
     {"static-executor", no_argument,            &use_static_executor,           TRUE},
     {"main-sched",      required_argument,      0,                              'm'},
     {"child-sched",     required_argument,      0,                              'c'},
+    {"run-type",        required_argument,      0,                              't'},
     {0,                 0,                      0,                               0},
   };
 
@@ -69,6 +70,9 @@ TwoWaysNodeOptions::TwoWaysNodeOptions(int argc, char *argv[])
       case('c'): {
         child_sched = get_schedule_policy(std::string(optarg));
         break;
+      }
+      case('t'): {
+        run_type = parse_run_type(std::string(optarg));
       }
       default:
         break;
@@ -176,5 +180,16 @@ SCHED_POLICY TwoWaysNodeOptions::get_schedule_policy(const std::string &opt)
     return SCHED_POLICY::TS;
   } else {
     throw std::invalid_argument("unknown policy: use RR98, RR97, TS");
+  }
+}
+
+RunType TwoWaysNodeOptions::parse_run_type(const std::string &type)
+{
+  if(type == "1e1n") {
+    return E1N1;
+  } else if(type == "1e2n") {
+    return E1N2;
+  } else {
+    throw std::invalid_argument("unknown run-type: 1e1n, 1e2n");
   }
 }

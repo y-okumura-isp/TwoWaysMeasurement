@@ -39,7 +39,7 @@ enum SCHED_POLICY {
 
 enum RunType {
   E1N1, // 1 executor, 1 node
-  // E1N2, // 1 executor, 2 nodes
+  E1N2, // 1 executor, 2 nodes
 };
 
 class TwoWaysNodeOptions {
@@ -111,6 +111,7 @@ private:
   // convert SCHED_POLICY to size_t and int.
   void get_sched(SCHED_POLICY sp, size_t &priority, int &policy);
   SCHED_POLICY get_schedule_policy(const std::string &opt);
+  RunType parse_run_type(const std::string &type);
 };
 
 #endif  /* SETTING_H_ */

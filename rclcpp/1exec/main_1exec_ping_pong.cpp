@@ -28,7 +28,9 @@ class Runner_1e1n : public Runner
 {
 public:
   Runner_1e1n(rclcpp::executor::Executor::SharedPtr e):
-      Runner(e) {}
+      Runner(e) {
+    std::cout << "runner = 1e1n" << std::endl;
+  }
 
   void setup(const TwoWaysNodeOptions &tw_options) override {
     rclcpp::NodeOptions node_options;
@@ -57,6 +59,45 @@ private:
   std::shared_ptr<TwoWaysNode> n_;
 };
 
+class Runner_1e2n : public Runner
+{
+public:
+  Runner_1e2n(rclcpp::executor::Executor::SharedPtr e):
+      Runner(e) {
+      std::cout << "runner = 1e2n" << std::endl;
+  }
+
+  void setup(const TwoWaysNodeOptions &tw_options) override {
+    rclcpp::NodeOptions node_options;
+    tw_options.set_node_options(node_options);
+    npub_ = std::make_shared<TwoWaysNode>("pub", "ns", tw_options, node_options);
+    nsub_ = std::make_shared<TwoWaysNode>("sub", "ns", tw_options, node_options);
+
+    npub_->setup_ping_publisher();
+    npub_->setup_pong_subscriber();
+    nsub_->setup_ping_subscriber(true);
+
+    exec_->add_node(npub_);
+    exec_->add_node(nsub_);
+  }
+
+  void cleanup() override {
+    exec_->remove_node(nsub_);
+    exec_->remove_node(npub_);
+  }
+
+  void report() override {
+     npub_->print_ping_wakeup_report();
+     npub_->print_diff_wakeup_report();
+     nsub_->print_ping_sub_report();
+     npub_->print_pong_sub_report();
+     npub_->print_ping_pong_report();
+  }
+
+private:
+  std::shared_ptr<TwoWaysNode> npub_, nsub_;
+};
+
 std::unique_ptr<Runner>
 make_runner(RunType type, rclcpp::executor::Executor::SharedPtr e)
 {
@@ -64,6 +105,10 @@ make_runner(RunType type, rclcpp::executor::Executor::SharedPtr e)
   switch(type) {
     case(E1N1): {
       p.reset(new Runner_1e1n(e));
+      break;
+    }
+    case(E1N2): {
+      p.reset(new Runner_1e2n(e));
       break;
     }
   }
