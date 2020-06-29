@@ -64,6 +64,7 @@ TwoWaysNodeOptions::TwoWaysNodeOptions(int argc, char *argv[])
           num_skip = tmp;
           needs_reinit = true;
         }
+        break;
       default:
         break;
     }
