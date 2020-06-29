@@ -39,6 +39,7 @@ TwoWaysNodeOptions::TwoWaysNodeOptions(int argc, char *argv[])
     {"ipm",             no_argument,            &use_intra_process_comms,       TRUE},
     {"round-ns",        required_argument,      0,                              'i'},
     {"num-skip",        required_argument,      0,                              'r'},
+    {"static-executor", no_argument,            &use_static_executor,           TRUE},
     {0,                 0,                      0,                               0},
   };
 
@@ -83,6 +84,7 @@ TwoWaysNodeOptions::TwoWaysNodeOptions():
     sched_rrrr(0),
     sched_priority(98),
     sched_policy(SCHED_RR),
+    use_static_executor(FALSE),
     prefault_dynamic_size(209715200UL),  // 200MB
     node_name("node"),
     node_name_pub("node_pub"),
@@ -115,6 +117,11 @@ rclcpp::executor::Executor::SharedPtr TwoWaysNodeOptions::get_executor()
     rclcpp::memory_strategy::MemoryStrategy::SharedPtr memory_strategy =
         std::make_shared<AllocatorMemoryStrategy<TLSFAllocator<void>>>();
     args.memory_strategy = memory_strategy;
+  }
+
+  if (use_static_executor) {
+    std::cout << "use StaticSingleThreadedExecutor" << std::endl;
+    return std::make_shared<rclcpp::executors::StaticSingleThreadedExecutor>(args);
   }
 
   return std::make_shared<rclcpp::executors::SingleThreadedExecutor>(args);

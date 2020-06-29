@@ -52,6 +52,9 @@ public:
   size_t sched_priority;
   int sched_policy;
 
+  // executor
+  int use_static_executor;
+
   // prefault
   size_t prefault_dynamic_size;
 
