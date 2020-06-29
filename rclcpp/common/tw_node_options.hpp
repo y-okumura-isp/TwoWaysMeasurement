@@ -112,6 +112,7 @@ private:
   void init_report_option(int bin, int round_ns, int num_skip);
   // convert SCHED_POLICY to size_t and int.
   void get_sched(SCHED_POLICY sp, size_t &priority, int &policy);
+  /// schedule option parser
   SCHED_POLICY get_schedule_policy(const std::string &opt);
   RunType parse_run_type(const std::string &type);
 };
