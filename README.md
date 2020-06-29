@@ -15,6 +15,7 @@ Two Ways Test
     - Node1 contains ping-pub + pong_sub
 	- Node2 contains ping-sub + pong-pub
   - seperate above 2 Node into 2 Executors
+- Service version ping-pong is also implemented but obsolute.
 
 # Environment
 - Ubuntu 18.04
@@ -51,8 +52,8 @@ Available options
 
 | type           | option            | default value | comment                                             |
 |----------------|-------------------|--------------:|-----------------------------------------------------|
-| command option | --sched-rrts      |           off | use RR-TS scheduler                                 |
-|                | --sched-rrrr      |           off | use RR-RR scheduler                                 |
+| command option | --sched-rrts      |           off | use RR-TS scheduler(OBSOLUTE)                       |
+|                | --sched-rrrr      |           off | use RR-RR scheduler(OBSOLUTE)                       |
 |                | --ipm             |           off | use intra process manager(communication)            |
 |                | --round-ns <ns>   |          1000 | histogram bin width in [ns]                         |
 |                | --num-skip <num>  |            10 | skip first N event to prevent initial overhead      |
