@@ -16,19 +16,19 @@ public:
 
   void setup_periodic_trigger();
   void setup_oneshot_trigger();
-  void reset_oneshot_trigger();
 
-protected:
+private:
+  const TwoWaysNodeOptions & tw_options_;
+
   // periodic trigger staffs
-  rclcpp::TimerBase::SharedPtr periodic_timer_;
   rclcpp::Publisher<twmsgs::msg::Data>::SharedPtr pub_;
+  rclcpp::TimerBase::SharedPtr periodic_timer_;
+  uint64_t periodic_period_ns_;
 
   // oneshot trigger staffs
   rclcpp::Subscription<twmsgs::msg::Data>::SharedPtr sub_;
   rclcpp::TimerBase::SharedPtr oneshot_timer_;
-
-private:
-   oneshot_period_ns_;
+  uint64_t oneshot_period_ns_;
 };
 
 #endif  // ONE_SHOT_TIMER_TEST_HPP_
