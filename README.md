@@ -2,9 +2,7 @@ Two Ways Test
 ====
 
 # About
-- Check performance by following scenarios:
-  - ping (publisher only)
-  - ping (puslish -> subscribe)
+- Check Real-Time performance by following scenarios:
   - ping-pong
 - ping-pong is implemented by 2 topics with following publisher and subscriber.
   - ping-publisher(ping-pub) sends ping periodically using ping-topic.
@@ -29,37 +27,45 @@ Two Ways Test
 # This has many sub packages
 colcon list
 
+# build all
+colcon build --symlink-install
+
 # build what you want
-cd ..
-colcon build --symlink-install --packages-select tw_rclcpp twmsgs
+colcon build --symlink-install --packages-up-to tw_ping_pong
 ```
 
 # Run
 
 ```
-./build/tw_rclcpp_1exec_topic/tw_1exec_1node \
-    --sched-rrts \
+# default option
+./build/tw_topic/tw_ping_pong
+
+# main-thread: RR98, child-thread: RR97, run-type 1e2n
+./build/tw_topic/tw_ping_pong \
+    --main-sched RR98 --child-sched RR97 \
+	--run-type 1e2n \
     --ros-args --param num_loops:=1000 -param period_ns:=1000000
 ```
 
 Available options
 
-| type           | option            | default value | comment                                        |
-|----------------|-------------------|--------------:|------------------------------------------------|
-| command option | --sched-rrts      |           off | use RR-TS scheduler                            |
-|                | --sched-rrrr      |           off | use RR-RR scheduler                            |
-|                | --ipm             |           off | use intra process manager(communication)       |
-|                | --round-ns <ns>   |          1000 | histogram bin width in [ns]                    |
-|                | --num-skip <num>  |            10 | skip first N event to prevent initial overhead |
-|                | --static-executor |               | use StaticSingleThreadedExecutor               |
-|                | --main-sched      |            TS | scheduling policy of main thread               |
-|                | --child-sched     |            TS | scheduling policy of child thread              |
-|                | --run-type        |          1e1n | executor/node setting. see below               |
-| parameter      | period_ns         |    10,000,000 | timer period[ns]                               |
-|                | num_loops         |        10,000 | number of loops                                |
-|                | debug_print       |         false | print debug message                            |
+| type           | option            | default value | comment                                             |
+|----------------|-------------------|--------------:|-----------------------------------------------------|
+| command option | --sched-rrts      |           off | use RR-TS scheduler                                 |
+|                | --sched-rrrr      |           off | use RR-RR scheduler                                 |
+|                | --ipm             |           off | use intra process manager(communication)            |
+|                | --round-ns <ns>   |          1000 | histogram bin width in [ns]                         |
+|                | --num-skip <num>  |            10 | skip first N event to prevent initial overhead      |
+|                | --static-executor |               | use StaticSingleThreadedExecutor                    |
+|                | --main-sched      |            TS | scheduling policy of main  thread, use RR98/RR97/TS |
+|                | --child-sched     |            TS | scheduling policy of child thread, use RR98/RR97/TS |
+|                | --run-type        |          1e1n | executor/node setting. see below                    |
+| parameter      | period_ns         |    10,000,000 | timer period[ns]                                    |
+|                | num_loops         |        10,000 | number of loops                                     |
+|                | debug_print       |         false | print debug message                                 |
 
 run-type
+
 | value   | meaning                     |
 |---------|-----------------------------|
 | 1e1n    | 1 executor, 1 node          |
@@ -89,26 +95,3 @@ Here are meanings.
 | wakeup_jitters | ping-pub wake up time-diff between expected wake up time and actual. | [ns] |
 | recv_jitters   | time-diff between ping-pub send and ping-sub recv.                   | [ns] |
 
-# Usage
-- C-c to stop processes then metrics are printed.
-
-```
-# ping publish -> subscribe
-## 1 executor 1 node
-./build/tw_rclcpp/tw_1exec_1node
-
-## 1 executor 2 node
-./build/tw_rclcpp/tw_1exec_2node
-
-################################
-# 2 executors
-# Run sub->pub by different terminal
-################################
-## 2 executors with same CPU. Run sub first.
-taskset -c 1 ./build/tw_rclcpp/tw_2exec_sub
-taskset -c 1 ./build/tw_rclcpp/tw_2exec_pub
-
-## 2 executors with different CPU
-taskset -c 1 ./build/tw_rclcpp/tw_2exec_sub
-taskset -c 2 ./build/tw_rclcpp/tw_2exec_pub
-```
