@@ -51,6 +51,15 @@ public:
   void print_ping_pong_report() {
     ping_pong_report_.print("ping_pong");
   }
+  void print_timer_callback_process_time_report() {
+    timer_callback_process_time_report_.print("timer_callback");
+  }
+  void print_ping_callback_process_time_report() {
+    ping_callback_process_time_report_.print("ping_callback");
+  }
+  void print_pong_callback_process_time_report(){
+    pong_callback_process_time_report_.print("pong_callback");
+  }
 
   void setup_ping_publisher();
   void setup_ping_subscriber(bool send_pong=false);
@@ -83,7 +92,12 @@ private:
   JitterReportWithSkip pong_sub_report_;
   // ping-pong jitter report
   JitterReportWithSkip ping_pong_report_;
-
+  // timer callback process time report
+  JitterReportWithSkip timer_callback_process_time_report_;
+  // ping callback process time report
+  JitterReportWithSkip ping_callback_process_time_report_;
+  // pong callback process time report
+  JitterReportWithSkip pong_callback_process_time_report_;
 };
 
 #endif  // TWO_WAYS_NODE_HPP_

@@ -53,6 +53,9 @@ public:
     n_->print_ping_sub_report();
     n_->print_pong_sub_report();
     n_->print_ping_pong_report();
+    n_->print_timer_callback_process_time_report();
+    n_->print_ping_callback_process_time_report();
+    n_->print_pong_callback_process_time_report();
   }
 
 private:
@@ -92,6 +95,9 @@ public:
      nsub_->print_ping_sub_report();
      npub_->print_pong_sub_report();
      npub_->print_ping_pong_report();
+     npub_->print_timer_callback_process_time_report();
+     nsub_->print_ping_callback_process_time_report();
+     npub_->print_pong_callback_process_time_report();
   }
 
 private:
@@ -125,6 +131,8 @@ public:
     npub_->print_diff_wakeup_report();
     npub_->print_pong_sub_report();
     npub_->print_ping_pong_report();
+    npub_->print_timer_callback_process_time_report();
+    npub_->print_pong_callback_process_time_report();
   }
 
 private:
@@ -154,6 +162,7 @@ public:
 
   void report() override {
     nsub_->print_ping_sub_report();
+    nsub_->print_ping_callback_process_time_report();
   }
 
 private:

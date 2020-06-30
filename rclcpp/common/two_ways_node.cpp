@@ -28,7 +28,11 @@ TwoWaysNode::TwoWaysNode(
       &ping_wakeup_report_,
       &ping_sub_report_,
       &pong_sub_report_,
-      &ping_pong_report_};
+      &ping_pong_report_,
+      &timer_callback_process_time_report_,
+      &ping_callback_process_time_report_,
+      &pong_callback_process_time_report_,
+  };
   for(auto r : reports) {
     r->init(tw_options.common_report_option.bin,
             tw_options.common_report_option.round_ns,
@@ -101,6 +105,11 @@ void TwoWaysNode::setup_ping_publisher()
                     << std::endl;
         }
 
+        struct timespec time_exit;
+        getnow(&time_exit);
+        subtract_timespecs(&time_exit, &time_wake_ts, &time_exit);
+        timer_callback_process_time_report_.add(_timespec_to_long(&time_exit));
+
         if(ping_pub_count_ == num_loops) {
           std::raise(SIGINT);
         }
@@ -156,6 +165,11 @@ void TwoWaysNode::setup_ping_subscriber(bool send_pong)
         pong.data = msg->data;
         pong_pub_->publish(pong);
         pong_pub_count_++;
+
+        struct timespec time_exit;
+        getnow(&time_exit);
+        subtract_timespecs(&time_exit, &now_ts, &time_exit);
+        ping_callback_process_time_report_.add(_timespec_to_long(&time_exit));
       };
 
   rclcpp::SubscriptionOptions subscription_options;
@@ -193,6 +207,11 @@ void TwoWaysNode::setup_pong_subscriber()
         ping_pong_report_.add(now_ns - msg->time_sent_ns);
         pong_sub_report_.add(now_ns - msg->time_sent_pong_ns);
         pong_sub_count_++;
+
+        struct timespec time_exit;
+        getnow(&time_exit);
+        subtract_timespecs(&time_exit, &now, &time_exit);
+        pong_callback_process_time_report_.add(_timespec_to_long(&time_exit));
       };
   rclcpp::SubscriptionOptions subscription_options;
   pong_sub_ = create_subscription<twmsgs::msg::Data>(topic_name_pong,
