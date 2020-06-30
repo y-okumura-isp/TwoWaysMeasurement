@@ -31,12 +31,16 @@ struct JitterReportOptions
     } \
   }
 
+// TODO create table of SCHED_POLICY, option args, policy, priproty
+// such as (RR98, "RR98", SCHED_RR, 98),
+// and unify get_sched_policy() and get_sched()
 enum SCHED_POLICY {
   RR98,
   RR97,
   TS
 };
 
+// TODO unify option parser. See TODO in SCHED_POLICY.
 enum RunType {
   E1N1,         // 1 executor, 1 node
   E1N2,         // 1 executor, 2 nodes
