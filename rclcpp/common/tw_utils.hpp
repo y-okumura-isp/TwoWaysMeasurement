@@ -60,14 +60,17 @@ private:
   int64_t num_skipped_;
 };
 
-inline void getnow(struct timespec *t)
+inline void getnow(struct timespec *t, bool uses_clock_monotonic_raw = false)
 {
   /* ROS2 uses CLOCK_MONOTONIC_RAW.
    * If you use another CLOCK_*, calcuration result may differ.
    */
-  // clock_gettime(CLOCK_REALTIME, t);
-  // clock_gettime(CLOCK_MONOTONIC, t);
-  clock_gettime(CLOCK_MONOTONIC_RAW, t);
+  clockid_t clock = uses_clock_monotonic_raw ? CLOCK_MONOTONIC_RAW : CLOCK_REALTIME;
+  // std::cout << "clock = " << clock
+  // << " CLOCK_MONOTONIC_RAW: " << CLOCK_MONOTONIC_RAW
+  // << " CLOCK_REALTIME " << CLOCK_REALTIME
+  // << std::endl;
+  clock_gettime(clock, t);
 }
 
 inline int64_t _timespec_to_long(const struct timespec *t)
