@@ -42,7 +42,7 @@ private:
   // max value
   int64_t max_ns_;
   // accumurator & count to calculate average
-  long accum_;
+  int64_t accum_;
   int64_t cnt_;
 };
 
