@@ -60,7 +60,7 @@ void TwoWaysNode::setup_ping_publisher()
   // pub
   this->ping_pub_ = this->create_publisher<twmsgs::msg::Data>(topic_name, qos);
 
-  auto callback_pub =
+  auto callback_timer =
       [this, period_ns, num_loops, debug_print]() -> void
       {
         struct timespec time_wake_ts;
@@ -121,7 +121,7 @@ void TwoWaysNode::setup_ping_publisher()
   period_ts_.tv_nsec = tw_options_.period_ns;
   add_timespecs(&epoch_ts_, &period_ts_, &expect_ts_);
   last_wake_ts_ = epoch_ts_;
-  this->ping_timer_ = this->create_wall_timer(std::chrono::nanoseconds(period_ns), callback_pub);
+  this->ping_timer_ = this->create_wall_timer(std::chrono::nanoseconds(period_ns), callback_timer);
 }
 
 void TwoWaysNode::setup_ping_subscriber(bool send_pong)
