@@ -68,7 +68,7 @@ def plot_target_1e(files, target, pos):
     _, data_1e2n = get_round_ns_and_results(files["1e2n"], target)
 
     plt.subplot(pos)
-    plt.title(title)
+    plt.title(target)
     plt.plot(data_1e1n, label="1e1n({})".format(np.sum(data_1e1n)))
     plt.plot(data_1e2n, label="1e2n({})".format(np.sum(data_1e2n)))
     plt.yscale("log")
@@ -87,7 +87,7 @@ def plot_target_2e(files, target, pos):
         round_ns, data_2e1c = get_round_ns_and_results(files["2e1c_pong"], target)
         _, data_2e2c = get_round_ns_and_results(files["2e2c_pong"], target)
 
-    plt.title(title)
+    plt.title(target)
     plt.plot(data_2e1c, label="2e1c({})".format(np.sum(data_2e1c)))
     plt.plot(data_2e2c, label="2e2c({})".format(np.sum(data_2e2c)))
 
@@ -96,10 +96,7 @@ def plot_target_2e(files, target, pos):
     plt.xlabel("{} ns".format(round_ns))
     plt.legend()
 
-
-
-if __name__ == "__main__":
-    args = parse_arguments()
+def main(args):
     tgtdir = args.result_dir
     title = args.graph_title
 
@@ -156,3 +153,8 @@ if __name__ == "__main__":
     plt.savefig(os.path.join(tgtdir, "{}_2executor.png".format(title)))
     # plt.show()
     plt.clf()
+
+
+if __name__ == "__main__":
+    args = parse_arguments()
+    main(args)
