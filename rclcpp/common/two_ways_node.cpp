@@ -18,8 +18,8 @@ TwoWaysNode::TwoWaysNode(
       ping_pub_count_(0), ping_sub_count_(0),
       pong_pub_count_(0), pong_sub_count_(0),
       send_pong_(false),
-      ping_drop(0), ping_late(0),
-      pong_drop(0), pong_late(0)
+      ping_drop(0), ping_drop_gap_(0), ping_late(0),
+      pong_drop(0), pong_drop_gap_(0), pong_late(0)
 {
   declare_parameter(PERIOD_NS, 10 * 1000 * 1000);
   declare_parameter(NUM_LOOPS, 10000);
@@ -152,6 +152,7 @@ void TwoWaysNode::setup_ping_subscriber(bool send_pong)
           ping_sub_count_ += 1;
         } else if (msg->data > ping_sub_count_ + 1) {  // drop occur
           ping_drop += 1;
+          ping_drop_gap_ += msg->data - (ping_sub_count_ + 1);
           ping_sub_count_ = msg->data;
         } else {  // msg->data < ping_sub_count_ + 1, late delivery
           ping_late += 1;
@@ -220,6 +221,7 @@ void TwoWaysNode::setup_pong_subscriber()
           pong_sub_count_ += 1;
         } else if (msg->data > pong_sub_count_ + 1) {  // drop occur
           pong_drop += 1;
+          pong_drop_gap_ += msg->data - (pong_sub_count_ + 1);
           pong_sub_count_ = msg->data;
         } else {  // msg->data < pong_sub_count_ + 1, late delivery
           pong_late += 1;
