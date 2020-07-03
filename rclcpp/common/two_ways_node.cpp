@@ -14,10 +14,12 @@ TwoWaysNode::TwoWaysNode(
     const TwoWaysNodeOptions & tw_options,
     const rclcpp::NodeOptions & options)
     : Node(name, namespace_, options),
+      tw_options_(tw_options),
       ping_pub_count_(0), ping_sub_count_(0),
       pong_pub_count_(0), pong_sub_count_(0),
-      tw_options_(tw_options),
-      send_pong_(false)
+      send_pong_(false),
+      ping_drop(0), ping_late(0),
+      pong_drop(0), pong_late(0)
 {
   declare_parameter(PERIOD_NS, 10 * 1000 * 1000);
   declare_parameter(NUM_LOOPS, 10000);
@@ -145,7 +147,15 @@ void TwoWaysNode::setup_ping_subscriber(bool send_pong)
         getnow(&now_ts);
         auto now_ns = _timespec_to_long(&now_ts);
         ping_sub_report_.add(now_ns - msg->time_sent_ns);
-        ping_sub_count_++;
+
+        if (msg->data == ping_sub_count_ + 1) {
+          ping_sub_count_ += 1;
+        } else if (msg->data > ping_sub_count_ + 1) {  // drop occur
+          ping_drop += 1;
+          ping_sub_count_ = msg->data;
+        } else {  // msg->data < ping_sub_count_ + 1, late delivery
+          ping_late += 1;
+        }
 
         if(debug_print) {
           struct timespec time_print;
@@ -206,7 +216,14 @@ void TwoWaysNode::setup_pong_subscriber()
         auto now_ns = _timespec_to_long(&now);
         ping_pong_report_.add(now_ns - msg->time_sent_ns);
         pong_sub_report_.add(now_ns - msg->time_sent_pong_ns);
-        pong_sub_count_++;
+        if (msg->data == pong_sub_count_ + 1) {
+          pong_sub_count_ += 1;
+        } else if (msg->data > pong_sub_count_ + 1) {  // drop occur
+          pong_drop += 1;
+          pong_sub_count_ = msg->data;
+        } else {  // msg->data < pong_sub_count_ + 1, late delivery
+          pong_late += 1;
+        }
 
         struct timespec time_exit;
         getnow(&time_exit);

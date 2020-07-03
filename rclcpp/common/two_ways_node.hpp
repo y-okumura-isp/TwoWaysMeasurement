@@ -24,18 +24,6 @@ public:
   virtual ~TwoWaysNode()
   {}
 
-  // number of ping publish
-  int ping_pub_count_;
-
-  // number of ping subscribe
-  int ping_sub_count_;
-
-  // number of pong publish
-  int pong_pub_count_;
-
-  // number of pong subscribe
-  int pong_sub_count_;
-
   void print_ping_wakeup_report() {
     ping_wakeup_report_.print("ping_wakeup");
   }
@@ -44,12 +32,18 @@ public:
   }
   void print_ping_sub_report() {
     ping_sub_report_.print("ping_sub");
+    std::cout << "ping_drop: " << ping_drop << std::endl;
+    std::cout << "ping_late: " << ping_late << std::endl << std::endl;
   }
   void print_pong_sub_report() {
     pong_sub_report_.print("pong_sub");
+    std::cout << "pong_drop: " << pong_drop << std::endl;
+    std::cout << "pong_late: " << pong_late << std::endl << std::endl;
   }
   void print_ping_pong_report() {
     ping_pong_report_.print("ping_pong");
+    std::cout << "pong_drop: " << pong_drop << std::endl;
+    std::cout << "pong_late: " << pong_late << std::endl << std::endl;
   }
   void print_timer_callback_process_time_report() {
     timer_callback_process_time_report_.print("timer_callback");
@@ -69,6 +63,15 @@ protected:
   const TwoWaysNodeOptions & tw_options_;
 
 private:
+  // number of ping publish
+  int ping_pub_count_;
+  // number of ping subscribe
+  int ping_sub_count_;
+  // number of pong publish
+  int pong_pub_count_;
+  // number of pong subscribe
+  int pong_sub_count_;
+
   struct timespec epoch_ts_;
   struct timespec period_ts_;
   struct timespec expect_ts_;
@@ -81,6 +84,15 @@ private:
   rclcpp::Subscription<twmsgs::msg::Data>::SharedPtr pong_sub_;
 
   bool send_pong_;
+
+  // how many times ping drop
+  uint64_t ping_drop;
+  // how many times ping late
+  uint64_t ping_late;
+  // how many times pong drop
+  uint64_t pong_drop;
+  // how many times pong late
+  uint64_t pong_late;
 
   // wakeup jitter report
   JitterReportWithSkip ping_wakeup_report_;
