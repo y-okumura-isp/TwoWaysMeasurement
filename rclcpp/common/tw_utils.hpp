@@ -22,7 +22,10 @@ class JitterReport
 {
 public:
   void init(int64_t bin_size, int64_t round_ns, int64_t min=0);
-  void add(int64_t ns);
+  /**
+   * return true if ns become max value
+   */
+  bool add(int64_t ns);
   void print(const std::string & prefix);
   std::vector<int64_t> getHistogram() const {
     return histogram_;
@@ -50,7 +53,7 @@ class JitterReportWithSkip
 {
 public:
   void init(int64_t bin_size, int64_t round_ns, int64_t num_skip=10, int64_t min=0);
-  void add(int64_t ns);
+  bool add(int64_t ns);
   void print(const std::string & prefix);
   std::vector<int64_t> getHistogram() const;
 

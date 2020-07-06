@@ -35,14 +35,16 @@ public:
     std::cout << "ping_drop: " << ping_drop << std::endl;
     std::cout << "ping_drop_gap_: " << ping_drop_gap_ << std::endl;
     std::cout << "ping_late: " << ping_late << std::endl;
-    std::cout << "ping_sub_count_: " << ping_sub_count_ << std::endl << std::endl;
+    std::cout << "ping_sub_count_: " << ping_sub_count_ << std::endl;
+    std::cout << "ping_argmax: " << ping_argmax_ << std::endl << std::endl;
   }
   void print_pong_sub_report() {
     pong_sub_report_.print("pong_sub");
     std::cout << "pong_drop: " << pong_drop << std::endl;
     std::cout << "pong_drop_gap_: " << pong_drop_gap_ << std::endl;
     std::cout << "pong_late: " << pong_late << std::endl;
-    std::cout << "pong_sub_count_: " << pong_sub_count_ << std::endl << std::endl;
+    std::cout << "pong_sub_count_: " << pong_sub_count_ << std::endl;
+    std::cout << "pong_argmax: " << pong_argmax_ << std::endl << std::endl;
   }
   void print_ping_pong_report() {
     ping_pong_report_.print("ping_pong");
@@ -90,11 +92,13 @@ private:
   // how many times ping drop
   uint64_t ping_drop;
   uint64_t ping_drop_gap_;
+  uint64_t ping_argmax_;
   // how many times ping late
   uint64_t ping_late;
   // how many times pong drop
   uint64_t pong_drop;
   uint64_t pong_drop_gap_;
+  uint64_t pong_argmax_;
   // how many times pong late
   uint64_t pong_late;
 

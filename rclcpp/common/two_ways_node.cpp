@@ -146,7 +146,9 @@ void TwoWaysNode::setup_ping_subscriber(bool send_pong)
         struct timespec now_ts;
         getnow(&now_ts);
         auto now_ns = _timespec_to_long(&now_ts);
-        ping_sub_report_.add(now_ns - msg->time_sent_ns);
+        if (ping_sub_report_.add(now_ns - msg->time_sent_ns)) {
+          ping_argmax_ = msg->data;
+        }
 
         if (msg->data == ping_sub_count_ + 1) {
           ping_sub_count_ += 1;
@@ -215,7 +217,9 @@ void TwoWaysNode::setup_pong_subscriber()
         getnow(&now);
 
         auto now_ns = _timespec_to_long(&now);
-        ping_pong_report_.add(now_ns - msg->time_sent_ns);
+        if (ping_pong_report_.add(now_ns - msg->time_sent_ns)) {
+          pong_argmax_ = msg->data;
+        }
         pong_sub_report_.add(now_ns - msg->time_sent_pong_ns);
         if (msg->data == pong_sub_count_ + 1) {
           pong_sub_count_ += 1;

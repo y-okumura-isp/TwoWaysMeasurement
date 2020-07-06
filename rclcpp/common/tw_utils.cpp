@@ -24,7 +24,7 @@ void JitterReport::init(int64_t bin_size, int64_t round_ns, int64_t min)
   cnt_ = 0;
 }
 
-void JitterReport::add(int64_t ns)
+bool JitterReport::add(int64_t ns)
 {
   int64_t idx = (ns - min_) / round_ns_;
   if (idx < 0) {
@@ -35,6 +35,7 @@ void JitterReport::add(int64_t ns)
   max_ns_ = std::max(max_ns_, ns);
   accum_ += ns;
   cnt_++;
+  return max_ns_ == ns;
 }
 
 void JitterReport::print(const std::string & prefix)
@@ -67,13 +68,13 @@ void JitterReportWithSkip::init(int64_t bin_size, int64_t round_ns, int64_t num_
   num_skipped_ = 0;
 }
 
-void JitterReportWithSkip::add(int64_t ns)
+bool JitterReportWithSkip::add(int64_t ns)
 {
   if(num_skipped_ < num_skip_) {
     num_skipped_++;
-    return;
+    return false;
   }
-  jr_.add(ns);
+  return jr_.add(ns);
 }
 
 void JitterReportWithSkip::print(const std::string & prefix)
