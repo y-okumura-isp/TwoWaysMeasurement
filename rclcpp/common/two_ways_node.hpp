@@ -78,6 +78,8 @@ private:
   // number of pong subscribe
   int pong_sub_count_;
 
+  twmsgs::msg::Data msg_;
+
   struct timespec epoch_ts_;
   struct timespec period_ts_;
   struct timespec expect_ts_;
@@ -122,6 +124,8 @@ private:
   JitterReportWithSkip ping_callback_process_time_report_;
   // pong callback process time report
   JitterReportWithSkip pong_callback_process_time_report_;
+
+  int64_t get_now_int64();
 };
 
 #endif  // TWO_WAYS_NODE_HPP_

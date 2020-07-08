@@ -89,12 +89,13 @@ void TwoWaysNode::setup_ping_publisher()
         last_wake_ts_ = time_wake_ts;
 
         // pub
-        twmsgs::msg::Data msg;
-        msg.data = ping_pub_count_;
-        // msg.data = "HelloWorld" + std::to_string(this->ping_pub_count_);
-        auto time_wake_ns = _timespec_to_long(&time_wake_ts);
-        msg.time_sent_ns = time_wake_ns;
-        ping_pub_->publish(msg);
+        msg_.data = ping_pub_count_;
+        // define original image
+        for(size_t i=0; i< msg_.image.size(); i++) {
+          msg_.image[i] = 0;
+        }
+        msg_.time_sent_ns = get_now_int64();
+        ping_pub_->publish(msg_);
 
         if(debug_print) {
           struct timespec time_print;
@@ -103,7 +104,7 @@ void TwoWaysNode::setup_ping_publisher()
                     << "time_print.tv_nsec: " << time_print.tv_nsec << std::endl;
           std::cout << "sent ping id = " << ping_pub_count_
                     << " @" << _timespec_to_long(&time_print)
-                    << " waked up @ " << time_wake_ns
+                    << " waked up @ " << _timespec_to_long(&time_wake_ts)
                     << std::endl;
         }
 
@@ -174,9 +175,13 @@ void TwoWaysNode::setup_ping_subscriber(bool send_pong)
         }
 
         auto pong = twmsgs::msg::Data();
-        pong.time_sent_ns = msg->time_sent_ns;
         pong.time_sent_pong_ns = now_ns;
         pong.data = msg->data;
+        // pos-neg inversion
+        for(size_t i=0; i< msg_.image.size(); i++) {
+          pong.image[i] = 255 - msg->image[i];
+        }
+        pong.time_sent_ns = get_now_int64();
         pong_pub_->publish(pong);
         pong_pub_count_++;
 
@@ -243,4 +248,11 @@ void TwoWaysNode::setup_pong_subscriber()
                                                      qos,
                                                      callback_pong_sub,
                                                      subscription_options);
+}
+
+int64_t TwoWaysNode::get_now_int64()
+{
+  struct timespec now_ts;
+  getnow(&now_ts);
+  return _timespec_to_long(&now_ts);
 }
