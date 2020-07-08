@@ -31,7 +31,7 @@ def get_round_ns_and_results(fname, target):
     # find target
     line_target = -1
     for i, line in enumerate(lines):
-	if target in line:
+	if re.match("{}$".format(target), line):
 	    print("{} found at {}".format(target, i))
 	    line_target = i
 
@@ -60,7 +60,7 @@ def parse_arguments():
 def plot_target_1e(files, target, pos):
     '''
     files: dictinary such as {"1e1n": path_to_file, ...}
-    target: metrics name such as diff_wake, ping_wake, ...
+    target: metrics name such as diff_wakeup, ping_wake, ...
     pos: graph position
     label: data label such as 1e1n
     '''
@@ -80,7 +80,7 @@ def plot_target_2e(files, target, pos):
     plt.subplot(pos)
 
     round_ns = 0
-    if target in ["diff_wake", "ping_wakeup", "ping_pong", "pong_sub", "timer_callback", "pong_callback"]:
+    if target in ["diff_wakeup", "ping_wakeup", "ping_pong", "pong_sub", "timer_callback", "pong_callback"]:
         round_ns, data_2e1c = get_round_ns_and_results(files["2e1c_ping"], target)
         _, data_2e2c = get_round_ns_and_results(files["2e2c_ping"], target)
     elif target in ["ping_sub", "ping_callback"]:
@@ -125,7 +125,7 @@ def main(args):
     plt.figure(figsize=(16, 18))
     plt.suptitle("1 executor. 1-2 nodes. {}".format(title))
 
-    plot_target_1e(files, "diff_wake", 331)
+    plot_target_1e(files, "diff_wakeup", 331)
     plot_target_1e(files, "ping_wakeup", 332)
     plot_target_1e(files, "ping_sub", 334)
     plot_target_1e(files, "pong_sub", 335)
@@ -141,7 +141,7 @@ def main(args):
     # plot 2e
     plt.figure(figsize=(16, 18))
     plt.suptitle("2 executor. 1-2 cores. {}".format(title))
-    plot_target_2e(files, "diff_wake", 331)
+    plot_target_2e(files, "diff_wakeup", 331)
     plot_target_2e(files, "ping_wakeup", 332)
     plot_target_2e(files, "ping_sub", 334)
     plot_target_2e(files, "pong_sub", 335)
