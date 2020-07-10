@@ -38,6 +38,7 @@ TwoWaysNodeOptions::TwoWaysNodeOptions(int argc, char *argv[])
     {"main-sched",      required_argument,      0,                              'm'},
     {"child-sched",     required_argument,      0,                              'c'},
     {"run-type",        required_argument,      0,                              't'},
+    {"default-memory-strategy", no_argument,    0,                              's'},
     {0,                 0,                      0,                               0},
   };
 
@@ -73,6 +74,11 @@ TwoWaysNodeOptions::TwoWaysNodeOptions(int argc, char *argv[])
       }
       case('t'): {
         run_type = parse_run_type(std::string(optarg));
+        break;
+      }
+      case('s'): {
+        use_message_pool_memory_strategy = false;
+        break;
       }
       default:
         break;

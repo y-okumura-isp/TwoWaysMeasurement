@@ -108,7 +108,7 @@ public:
   // Options for rclcpp::Executor
   const bool use_tlsf_allocator;
   // Options for rclcpp::Subscription
-  const bool use_message_pool_memory_strategy;
+  bool use_message_pool_memory_strategy;
   // Options for rclcpp::Node
   int use_intra_process_comms; // 0: false, 1: true
 

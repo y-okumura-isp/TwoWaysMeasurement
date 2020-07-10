@@ -193,6 +193,7 @@ void TwoWaysNode::setup_ping_subscriber(bool send_pong)
 
   rclcpp::SubscriptionOptions subscription_options;
   if (tw_options_.use_message_pool_memory_strategy) {
+    std::cout << "use MessagePoolMemoryStrategy" << std::endl;
     auto data_msg_strategy =
         std::make_shared<MessagePoolMemoryStrategy<twmsgs::msg::Data, 1>>();
     ping_sub_ =
@@ -203,6 +204,7 @@ void TwoWaysNode::setup_ping_subscriber(bool send_pong)
             subscription_options,
             data_msg_strategy);
   } else {
+    std::cout << "don't use MessagePoolMemoryStrategy" << std::endl;
     ping_sub_ =
         create_subscription<twmsgs::msg::Data>(
             topic_name,
