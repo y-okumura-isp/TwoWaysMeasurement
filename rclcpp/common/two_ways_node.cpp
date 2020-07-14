@@ -18,8 +18,8 @@ TwoWaysNode::TwoWaysNode(
       ping_pub_count_(0), ping_sub_count_(0),
       pong_pub_count_(0), pong_sub_count_(0),
       send_pong_(false),
-      ping_drop(0), ping_drop_gap_(0), ping_argdrop_(0), ping_late(0),
-      pong_drop(0), pong_drop_gap_(0), pong_argdrop_(0), pong_late(0)
+      ping_drop(0), ping_drop_gap_(0), ping_argmax_(0), ping_argdrop_(0), ping_late(0),
+      pong_drop(0), pong_drop_gap_(0), pong_argmax_(0), pong_argdrop_(0), pong_late(0)
 {
   declare_parameter(PERIOD_NS, 10 * 1000 * 1000);
   declare_parameter(NUM_LOOPS, 10000);
