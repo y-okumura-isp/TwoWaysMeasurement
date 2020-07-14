@@ -49,12 +49,12 @@ public:
   }
 
   void report() override {
-    // n_->print_ping_wakeup_report();
-    // n_->print_diff_wakeup_report();
+    n_->print_ping_wakeup_report();
+    n_->print_diff_wakeup_report();
     // n_->print_ping_sub_report();
     // n_->print_pong_sub_report();
     // n_->print_ping_pong_report();
-    // n_->print_timer_callback_process_time_report();
+    n_->print_timer_callback_process_time_report();
     // n_->print_ping_callback_process_time_report();
     // n_->print_pong_callback_process_time_report();
   }

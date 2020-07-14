@@ -3,7 +3,6 @@
 
 #include "threaded_two_ways_node.hpp"
 
-#include "twmsgs/msg/data.hpp"
 #include "../../rclcpp/common/tw_node_options.hpp"
 #include "../../rclcpp/common/tw_utils.hpp"
 
@@ -13,50 +12,8 @@ const std::string PERIOD_NS = "period_ns";
 const std::string NUM_LOOPS = "num_loops";
 const std::string DEBUG_PRINT = "debug_print";
 
-using MyMsg = twmsgs::msg::Data;
-
-class PingPublisherByTimer : public ThreadedWallTimer
-{
-public:
-  PingPublisherByTimer(
-      rclcpp::Node *node, const std::string &topic_name, const rclcpp::QoS qos,
-      long period_ns, bool debug_print, uint64_t num_loops,
-      size_t sched_priority=0, int policy=SCHED_OTHER, size_t core_id=1);
-
-protected:
-  void on_callback() override;
-
-  void on_overrun() override;
-
-private:
-  rclcpp::Publisher<MyMsg>::SharedPtr ping_pub_;
-  uint64_t ping_pub_count_;
-  const std::string topic_;
-  MyMsg msg_;
-
-  struct timespec epoch_ts_;
-  struct timespec period_ts_;
-  struct timespec expect_ts_;
-  struct timespec last_wake_ts_;
-
-  // wakeup jitter report
-  JitterReportWithSkip ping_wakeup_report_;
-  // wakeup jitter from last wakeup
-  JitterReportWithSkip diff_wakeup_report_;
-  // timer callback process time report
-  JitterReportWithSkip timer_callback_process_time_report_;
-
-  bool debug_print_;
-  uint64_t num_loops_;
-
-  int64_t get_now_int64() {
-    struct timespec now_ts;
-    getnow(&now_ts);
-    return _timespec_to_long(&now_ts);
-  }
-};
-
 PingPublisherByTimer::PingPublisherByTimer(
+    const TwoWaysNodeOptions &tw_options,
     rclcpp::Node *node, const std::string &topic_name, const rclcpp::QoS qos,
     long period_ns, bool debug_print, uint64_t num_loops,
     size_t sched_priority, int policy, size_t core_id)
@@ -70,6 +27,22 @@ PingPublisherByTimer::PingPublisherByTimer(
   add_timespecs(&epoch_ts_, &period_ts_, &expect_ts_);
   last_wake_ts_ = epoch_ts_;
   ping_pub_ = node->create_publisher<MyMsg>(topic_name, qos);
+
+  // setup reports
+  JitterReportWithSkip* reports[] = {
+      &ping_wakeup_report_,
+      &timer_callback_process_time_report_,
+  };
+  for(auto r : reports) {
+    r->init(tw_options.common_report_option.bin,
+            tw_options.common_report_option.round_ns,
+            tw_options.common_report_option.num_skip);
+  }
+  diff_wakeup_report_.init(
+      tw_options.common_report_option.bin,
+      tw_options.common_report_option.round_ns,
+      tw_options.common_report_option.num_skip,
+      - tw_options.common_report_option.bin/2 * tw_options.common_report_option.round_ns);
 }
 
 void PingPublisherByTimer::on_callback()
@@ -161,6 +134,7 @@ void ThreadedTwoWaysNode::setup_ping_publisher()
   std::cout << DEBUG_PRINT << ": " << (debug_print ? "true" : "false") << std::endl;
 
   ping_helper_ = std::make_unique<PingPublisherByTimer>(
+      tw_options_,
       this, topic_name, qos,
       period_ns, debug_print, num_loops);
   this->ping_timer_ = ping_helper_->create_wall_timer(this, std::chrono::nanoseconds(period_ns));

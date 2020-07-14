@@ -52,8 +52,8 @@ set(DEPENDS
   rttest
   )
 
-set(TW_PING_PONG tw_ping_pong)
-add_executable(${TW_PING_PONG} main_ping_pong.cpp ${TW_COMMON})
+set(TW_PING_PONG threaded_tw_ping_pong)
+add_executable(${TW_PING_PONG} main_threaded_ping_pong.cpp ${TW_COMMON})
 ament_target_dependencies(${TW_PING_PONG} ${DEPENDS})
 
 install(TARGETS
