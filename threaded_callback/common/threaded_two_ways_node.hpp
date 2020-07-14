@@ -2,6 +2,7 @@
 #define THREADED_TWO_WAYS_NODE_HPP
 
 #include "../../../ROS2_ThreadedCallback/include/threaded_wall_timer.hpp"
+#include "../../../ROS2_ThreadedCallback/include/threaded_subscriber.hpp"
 
 #include "twmsgs/msg/data.hpp"
 #include "../../rclcpp/common/tw_node_options.hpp"
@@ -61,8 +62,69 @@ private:
   }
 };
 
+class PingSubscription : public ThreadedSubscription<twmsgs::msg::Data::UniquePtr, twmsgs::msg::Data>
+{
+  using MyMsg = twmsgs::msg::Data;
+
+public:
+  PingSubscription(
+      const TwoWaysNodeOptions &tw_options,
+      rclcpp::Node *node,
+      bool send_pong, bool debug_print,
+      size_t sched_priority=0, int policy=SCHED_OTHER, size_t core_id=1);
+
+  void print_ping_sub_report() {
+    ping_sub_report_.print("ping_sub");
+    std::cout << "ping_drop: " << ping_drop << std::endl;
+    std::cout << "ping_drop_gap_: " << ping_drop_gap_ << std::endl;
+    std::cout << "ping_argdrop: < " << ping_argdrop_ << std::endl;
+    std::cout << "ping_late: " << ping_late << std::endl;
+    std::cout << "ping_sub_count_: " << ping_sub_count_ << std::endl;
+    std::cout << "ping_argmax: " << ping_argmax_ << std::endl << std::endl;
+  }
+  void print_ping_callback_process_time_report() {
+    ping_callback_process_time_report_.print("ping_callback");
+  }
+
+protected:
+  void on_callback() override;
+
+  void on_overrun() override;
+
+private:
+  // number of ping subscribe
+  int ping_sub_count_;
+
+  rclcpp::Publisher<MyMsg>::SharedPtr pong_pub_;
+
+  bool send_pong_;
+
+  // how many times ping drop
+  uint64_t ping_drop;
+  uint64_t ping_drop_gap_;
+  uint64_t ping_argmax_;
+  uint64_t ping_argdrop_;
+  // how many times ping late
+  uint64_t ping_late;
+
+  // sub jitter report
+  JitterReportWithSkip ping_sub_report_;
+  // ping callback process time report
+  JitterReportWithSkip ping_callback_process_time_report_;
+
+  bool debug_print_;
+
+  int64_t get_now_int64() {
+    struct timespec now_ts;
+    getnow(&now_ts);
+    return _timespec_to_long(&now_ts);
+  }
+};
+
 class ThreadedTwoWaysNode : public rclcpp::Node
 {
+  using MyMsg = twmsgs::msg::Data;
+
 public:
   explicit ThreadedTwoWaysNode(
       const std::string name,
@@ -74,6 +136,7 @@ public:
   {}
 
   void setup_ping_publisher();
+  void setup_ping_subscriber(bool send_pong=false);
 
   void print_ping_wakeup_report() {
     ping_helper_->print_ping_wakeup_report();
@@ -81,13 +144,22 @@ public:
   void print_diff_wakeup_report() {
     ping_helper_->print_diff_wakeup_report();
   }
+  void print_ping_sub_report() {
+    ping_sub_helper_->print_ping_sub_report();
+  }
   void print_timer_callback_process_time_report() {
     ping_helper_->print_timer_callback_process_time_report();
+  }
+  void print_ping_callback_process_time_report() {
+    ping_sub_helper_->print_ping_callback_process_time_report();
   }
 
 private:
   rclcpp::TimerBase::SharedPtr ping_timer_;
+  rclcpp::Subscription<MyMsg>::SharedPtr ping_sub_;
+
   std::unique_ptr<PingPublisherByTimer> ping_helper_;
+  std::unique_ptr<PingSubscription> ping_sub_helper_;
 
   const TwoWaysNodeOptions & tw_options_;
 };

@@ -12,6 +12,9 @@ const std::string PERIOD_NS = "period_ns";
 const std::string NUM_LOOPS = "num_loops";
 const std::string DEBUG_PRINT = "debug_print";
 
+/************************
+ * PingPublisherByTimer
+ ************************/
 PingPublisherByTimer::PingPublisherByTimer(
     const TwoWaysNodeOptions &tw_options,
     rclcpp::Node *node, const std::string &topic_name, const rclcpp::QoS qos,
@@ -105,6 +108,91 @@ void PingPublisherByTimer::on_overrun()
 }
 
 /************************
+ * PingSubscription
+ ************************/
+PingSubscription::PingSubscription(
+    const TwoWaysNodeOptions &tw_options,
+    rclcpp::Node *node,
+    bool send_pong, bool debug_print,
+    size_t sched_priority, int policy, size_t core_id)
+    : ThreadedSubscription(sched_priority, policy, core_id),
+      ping_sub_count_(0),
+      send_pong_(send_pong),
+      ping_drop(0), ping_drop_gap_(0), ping_argmax_(0), ping_argdrop_(0), ping_late(0),
+      debug_print_(debug_print)
+{
+  if(send_pong) {
+    // for pong publisher
+    auto topic_name = tw_options.topic_name;
+    auto qos = tw_options.qos;
+    pong_pub_ = node->create_publisher<MyMsg>(topic_name, qos);
+  }
+
+  JitterReportWithSkip* reports[] = {
+    &ping_sub_report_,
+    &ping_callback_process_time_report_,
+  };
+  for(auto r : reports) {
+    r->init(tw_options.common_report_option.bin,
+            tw_options.common_report_option.round_ns,
+            tw_options.common_report_option.num_skip);
+  }
+}
+
+void PingSubscription::on_callback()
+{
+  struct timespec now_ts;
+  getnow(&now_ts);
+  auto now_ns = _timespec_to_long(&now_ts);
+  if (ping_sub_report_.add(now_ns - msg_.time_sent_ns)) {
+    ping_argmax_ = msg_.data;
+  }
+
+  if (msg_.data == ping_sub_count_ + 1) {
+    ping_sub_count_ += 1;
+  } else if (msg_.data > ping_sub_count_ + 1) {  // drop occur
+    ping_drop += 1;
+    ping_drop_gap_ += msg_.data - (ping_sub_count_ + 1);
+    ping_sub_count_ = msg_.data;
+    ping_argdrop_ = msg_.data;
+  } else {  // msg_.data < ping_sub_count_ + 1, late delivery
+    ping_late += 1;
+  }
+
+  if(debug_print_) {
+    struct timespec time_print;
+    getnow(&time_print);
+    std::cout << "recv ping id = " << msg_.data
+              << " @" << now_ns
+              << std::endl;
+  }
+
+  if (!send_pong_) {
+    return;
+  }
+
+  auto pong = MyMsg();
+  pong.time_sent_pong_ns = now_ns;
+  pong.data = msg_.data;
+  // pos-neg inversion
+  for(size_t i=0; i< msg_.image.size(); i++) {
+    pong.image[i] = 255 - msg_.image[i];
+  }
+  pong.time_sent_ns = get_now_int64();
+  pong_pub_->publish(pong);
+
+  struct timespec time_exit;
+  getnow(&time_exit);
+  subtract_timespecs(&time_exit, &now_ts, &time_exit);
+  ping_callback_process_time_report_.add(_timespec_to_long(&time_exit));
+}
+
+void PingSubscription::on_overrun()
+{
+  
+}
+
+/************************
  * ThreadedTwoWaysNode
  ************************/
 ThreadedTwoWaysNode::ThreadedTwoWaysNode(
@@ -138,4 +226,16 @@ void ThreadedTwoWaysNode::setup_ping_publisher()
       this, topic_name, qos,
       period_ns, debug_print, num_loops);
   this->ping_timer_ = ping_helper_->create_wall_timer(this, std::chrono::nanoseconds(period_ns));
+}
+
+void ThreadedTwoWaysNode::setup_ping_subscriber(bool send_pong)
+{
+  auto debug_print = get_parameter(DEBUG_PRINT).get_value<bool>();
+  ping_sub_helper_ = std::make_unique<PingSubscription>(
+      tw_options_,
+      this,
+      send_pong, debug_print);
+  ping_sub_ = ping_sub_helper_->create_subscription(
+      this,
+      tw_options_.topic_name, tw_options_.qos);
 }
