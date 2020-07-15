@@ -193,6 +193,63 @@ void PingSubscription::on_overrun()
 }
 
 /************************
+ * PongSubscription
+ ************************/
+PongSubscription::PongSubscription(
+      const TwoWaysNodeOptions &tw_options,
+      rclcpp::Node *node,
+      size_t sched_priority, int policy, size_t core_id)
+    : ThreadedSubscription(sched_priority, policy, core_id),
+      pong_sub_count_(0),
+      pong_drop(0), pong_drop_gap_(0), pong_argmax_(0), pong_argdrop_(0), pong_late(0)
+{
+  (void)node;
+  JitterReportWithSkip* reports[] = {
+    &pong_sub_report_,
+    &ping_pong_report_,
+    &pong_callback_process_time_report_,
+  };
+  for(auto r : reports) {
+    r->init(tw_options.common_report_option.bin,
+            tw_options.common_report_option.round_ns,
+            tw_options.common_report_option.num_skip);
+  }
+}
+
+void PongSubscription::on_callback()
+{
+  struct timespec now;
+  getnow(&now);
+
+  auto now_ns = _timespec_to_long(&now);
+  if (ping_pong_report_.add(now_ns - msg_.time_sent_ns)) {
+    pong_argmax_ = msg_.data;
+  }
+  pong_sub_report_.add(now_ns - msg_.time_sent_pong_ns);
+  if (msg_.data == pong_sub_count_ + 1) {
+    pong_sub_count_ += 1;
+  } else if (msg_.data > pong_sub_count_ + 1) {  // drop occur
+    pong_drop += 1;
+    pong_drop_gap_ += msg_.data - (pong_sub_count_ + 1);
+    pong_sub_count_ = msg_.data;
+    pong_argdrop_ = msg_.data;
+  } else {  // msg_.data < pong_sub_count_ + 1, late delivery
+    pong_late += 1;
+  }
+
+  struct timespec time_exit;
+  getnow(&time_exit);
+  subtract_timespecs(&time_exit, &now, &time_exit);
+  pong_callback_process_time_report_.add(_timespec_to_long(&time_exit));
+}
+
+void PongSubscription::on_overrun()
+{
+  
+}
+
+
+/************************
  * ThreadedTwoWaysNode
  ************************/
 ThreadedTwoWaysNode::ThreadedTwoWaysNode(
@@ -236,6 +293,16 @@ void ThreadedTwoWaysNode::setup_ping_subscriber(bool send_pong)
       this,
       send_pong, debug_print);
   ping_sub_ = ping_sub_helper_->create_subscription(
+      this,
+      tw_options_.topic_name, tw_options_.qos);
+}
+
+void ThreadedTwoWaysNode::setup_pong_subscriber()
+{
+  pong_sub_helper_ = std::make_unique<PongSubscription>(
+      tw_options_,
+      this);
+  pong_sub_ = pong_sub_helper_->create_subscription(
       this,
       tw_options_.topic_name, tw_options_.qos);
 }

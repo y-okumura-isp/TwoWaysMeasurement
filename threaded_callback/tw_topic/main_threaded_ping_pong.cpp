@@ -39,7 +39,7 @@ public:
     n_ = std::make_shared<ThreadedTwoWaysNode>("node_1e1n", "ns", tw_options, node_options);
     n_->setup_ping_publisher();
     n_->setup_ping_subscriber(true);
-    // n_->setup_pong_subscriber();
+    n_->setup_pong_subscriber();
 
     exec_->add_node(n_);
   }
@@ -52,11 +52,11 @@ public:
     n_->print_ping_wakeup_report();
     n_->print_diff_wakeup_report();
     n_->print_ping_sub_report();
-    // n_->print_pong_sub_report();
-    // n_->print_ping_pong_report();
+    n_->print_pong_sub_report();
+    n_->print_ping_pong_report();
     n_->print_timer_callback_process_time_report();
     n_->print_ping_callback_process_time_report();
-    // n_->print_pong_callback_process_time_report();
+    n_->print_pong_callback_process_time_report();
   }
 
 private:

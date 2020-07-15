@@ -121,6 +121,57 @@ private:
   }
 };
 
+class PongSubscription : public ThreadedSubscription<twmsgs::msg::Data::UniquePtr, twmsgs::msg::Data>
+{
+  using MyMsg = twmsgs::msg::Data;
+
+public:
+  PongSubscription(
+      const TwoWaysNodeOptions &tw_options,
+      rclcpp::Node *node,
+      size_t sched_priority=0, int policy=SCHED_OTHER, size_t core_id=1);
+
+  void print_pong_sub_report() {
+    pong_sub_report_.print("pong_sub");
+    std::cout << "pong_drop: " << pong_drop << std::endl;
+    std::cout << "pong_drop_gap_: " << pong_drop_gap_ << std::endl;
+    std::cout << "pong_argdrop: " << pong_argdrop_ << std::endl;
+    std::cout << "pong_late: " << pong_late << std::endl;
+    std::cout << "pong_sub_count_: " << pong_sub_count_ << std::endl;
+    std::cout << "pong_argmax: " << pong_argmax_ << std::endl << std::endl;
+  }
+  void print_ping_pong_report() {
+    ping_pong_report_.print("ping_pong");
+  }
+  void print_pong_callback_process_time_report(){
+    pong_callback_process_time_report_.print("pong_callback");
+  }
+
+protected:
+  void on_callback() override;
+
+  void on_overrun() override;
+
+private:
+  // number of pong subscribe
+  int pong_sub_count_;
+
+  // how many times pong drop
+  uint64_t pong_drop;
+  uint64_t pong_drop_gap_;
+  uint64_t pong_argmax_;
+  uint64_t pong_argdrop_;
+  // how many times pong late
+  uint64_t pong_late;
+
+  // sub jitter report
+  JitterReportWithSkip pong_sub_report_;
+  // ping-pong jitter report
+  JitterReportWithSkip ping_pong_report_;
+  // pong callback process time report
+  JitterReportWithSkip pong_callback_process_time_report_;
+};
+
 class ThreadedTwoWaysNode : public rclcpp::Node
 {
   using MyMsg = twmsgs::msg::Data;
@@ -137,6 +188,7 @@ public:
 
   void setup_ping_publisher();
   void setup_ping_subscriber(bool send_pong=false);
+  void setup_pong_subscriber();
 
   void print_ping_wakeup_report() {
     ping_helper_->print_ping_wakeup_report();
@@ -147,19 +199,30 @@ public:
   void print_ping_sub_report() {
     ping_sub_helper_->print_ping_sub_report();
   }
+  void print_pong_sub_report() {
+    pong_sub_helper_->print_pong_sub_report();
+  }
+  void print_ping_pong_report() {
+    pong_sub_helper_->print_ping_pong_report();
+  }
   void print_timer_callback_process_time_report() {
     ping_helper_->print_timer_callback_process_time_report();
   }
   void print_ping_callback_process_time_report() {
     ping_sub_helper_->print_ping_callback_process_time_report();
   }
+  void print_pong_callback_process_time_report() {
+    pong_sub_helper_->print_pong_callback_process_time_report();
+  }
 
 private:
   rclcpp::TimerBase::SharedPtr ping_timer_;
   rclcpp::Subscription<MyMsg>::SharedPtr ping_sub_;
+  rclcpp::Subscription<MyMsg>::SharedPtr pong_sub_;
 
   std::unique_ptr<PingPublisherByTimer> ping_helper_;
   std::unique_ptr<PingSubscription> ping_sub_helper_;
+  std::unique_ptr<PongSubscription> pong_sub_helper_;
 
   const TwoWaysNodeOptions & tw_options_;
 };
