@@ -123,7 +123,7 @@ PingSubscription::PingSubscription(
 {
   if(send_pong) {
     // for pong publisher
-    auto topic_name = tw_options.topic_name;
+    auto topic_name = tw_options.topic_name_pong;
     auto qos = tw_options.qos;
     pong_pub_ = node->create_publisher<MyMsg>(topic_name, qos);
   }
@@ -304,5 +304,5 @@ void ThreadedTwoWaysNode::setup_pong_subscriber()
       this);
   pong_sub_ = pong_sub_helper_->create_subscription(
       this,
-      tw_options_.topic_name, tw_options_.qos);
+      tw_options_.topic_name_pong, tw_options_.qos);
 }
