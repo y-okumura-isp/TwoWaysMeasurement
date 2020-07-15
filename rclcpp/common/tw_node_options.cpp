@@ -189,17 +189,24 @@ SCHED_POLICY TwoWaysNodeOptions::get_schedule_policy(const std::string &opt)
   }
 }
 
-RunType TwoWaysNodeOptions::parse_run_type(const std::string &type)
+RunType TwoWaysNodeOptions::parse_run_type(const std::string &name)
 {
-  if(type == "1e1n") {
-    return E1N1;
-  } else if(type == "1e2n") {
-    return E1N2;
-  } else if(type == "2e_ping") {
-    return E2_PING;
-  } else if(type == "2e_pong") {
-    return E2_PONG;
+  std::map<std::string, RunType> name2type {
+    {"1e1n", E1N1},
+    {"1e2n", E1N2},
+    {"2e_ping", E2_PING},
+    {"2e_pong", E2_PONG},
+
+    {"1e1n_threaded", E1N1},
+    {"1e2n_threaded", E1N2},
+    {"2e_ping_threaded", E2_PING},
+    {"2e_pong_threaded", E2_PONG},
+  };
+
+  auto ret = name2type.find(name);
+  if(ret != name2type.end()) {
+    return ret->second;
   } else {
-    throw std::invalid_argument("unknown run-type: 1e1n, 1e2n, 2e_ping, 2e_pong");
+    throw std::invalid_argument("unknown run-type: 1e1n, 1e2n, 2e_ping, 2e_pong, 1e1n_threaded, ...");
   }
 }

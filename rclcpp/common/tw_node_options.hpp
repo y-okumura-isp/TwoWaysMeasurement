@@ -46,7 +46,14 @@ enum RunType {
   E1N2,         // 1 executor, 2 nodes
   E2_PING,      // 2 executor, ping
   E2_PONG,      // 2 executor, pong
+
+  E1N1_THREADED,         // 1 executor, 1 node
+  E1N2_THREADED,         // 1 executor, 2 nodes
+  E2_PING_THREADED,      // 2 executor, ping
+  E2_PONG_THREADED,      // 2 executor, pong
 };
+
+
 
 class TwoWaysNodeOptions {
 public:

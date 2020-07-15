@@ -4,170 +4,11 @@
 #include <vector>
 #include <numeric>
 
-#include "rclcpp/rclcpp.hpp"
-#include "../common/two_ways_node.hpp"
 #include "../common/tw_utils.hpp"
+#include "main_ping_pong.hpp"
 
 const char * node_name = "one_node_ping_pong";
 
-class Runner
-{
-public:
-  Runner(rclcpp::executor::Executor::SharedPtr e):
-      exec_(e) {}
-
-  virtual void setup(const TwoWaysNodeOptions &tw_options) = 0;
-  virtual void cleanup() = 0;
-  virtual void report() = 0;
-
-protected:
-  rclcpp::executor::Executor::SharedPtr exec_;
-};
-
-class Runner_1e1n : public Runner
-{
-public:
-  Runner_1e1n(rclcpp::executor::Executor::SharedPtr e):
-      Runner(e) {
-    std::cout << "runner = 1e1n" << std::endl;
-  }
-
-  void setup(const TwoWaysNodeOptions &tw_options) override {
-    rclcpp::NodeOptions node_options;
-    tw_options.set_node_options(node_options);
-    n_ = std::make_shared<TwoWaysNode>("node_1e1n", "ns", tw_options, node_options);
-    n_->setup_ping_publisher();
-    n_->setup_ping_subscriber(true);
-    n_->setup_pong_subscriber();
-
-    exec_->add_node(n_);
-  }
-
-  void cleanup() override {
-    exec_->remove_node(n_);
-  }
-
-  void report() override {
-    n_->print_ping_wakeup_report();
-    n_->print_diff_wakeup_report();
-    n_->print_ping_sub_report();
-    n_->print_pong_sub_report();
-    n_->print_ping_pong_report();
-    n_->print_timer_callback_process_time_report();
-    n_->print_ping_callback_process_time_report();
-    n_->print_pong_callback_process_time_report();
-  }
-
-private:
-  std::shared_ptr<TwoWaysNode> n_;
-};
-
-class Runner_1e2n : public Runner
-{
-public:
-  Runner_1e2n(rclcpp::executor::Executor::SharedPtr e):
-      Runner(e) {
-      std::cout << "runner = 1e2n" << std::endl;
-  }
-
-  void setup(const TwoWaysNodeOptions &tw_options) override {
-    rclcpp::NodeOptions node_options;
-    tw_options.set_node_options(node_options);
-    npub_ = std::make_shared<TwoWaysNode>("pub", "ns", tw_options, node_options);
-    nsub_ = std::make_shared<TwoWaysNode>("sub", "ns", tw_options, node_options);
-
-    npub_->setup_ping_publisher();
-    npub_->setup_pong_subscriber();
-    nsub_->setup_ping_subscriber(true);
-
-    exec_->add_node(npub_);
-    exec_->add_node(nsub_);
-  }
-
-  void cleanup() override {
-    exec_->remove_node(nsub_);
-    exec_->remove_node(npub_);
-  }
-
-  void report() override {
-     npub_->print_ping_wakeup_report();
-     npub_->print_diff_wakeup_report();
-     nsub_->print_ping_sub_report();
-     npub_->print_pong_sub_report();
-     npub_->print_ping_pong_report();
-     npub_->print_timer_callback_process_time_report();
-     nsub_->print_ping_callback_process_time_report();
-     npub_->print_pong_callback_process_time_report();
-  }
-
-private:
-  std::shared_ptr<TwoWaysNode> npub_, nsub_;
-};
-
-class Runner_2e_ping : public Runner
-{
-public:
-  Runner_2e_ping(rclcpp::executor::Executor::SharedPtr e):
-      Runner(e) {
-      std::cout << "runner = 1e2n_ping" << std::endl;
-  }
-
-  void setup(const TwoWaysNodeOptions &tw_options) override {
-    rclcpp::NodeOptions node_options;
-    tw_options.set_node_options(node_options);
-    npub_ = std::make_shared<TwoWaysNode>("main_pub_ping_pong", "ns", tw_options, node_options);
-
-    npub_->setup_ping_publisher();
-    npub_->setup_pong_subscriber();
-    exec_->add_node(npub_);
-  }
-
-  void cleanup() override {
-    exec_->remove_node(npub_);
-  }
-
-  void report() override {
-    npub_->print_ping_wakeup_report();
-    npub_->print_diff_wakeup_report();
-    npub_->print_pong_sub_report();
-    npub_->print_ping_pong_report();
-    npub_->print_timer_callback_process_time_report();
-    npub_->print_pong_callback_process_time_report();
-  }
-
-private:
-  std::shared_ptr<TwoWaysNode> npub_;
-};
-
-class Runner_2e_pong : public Runner
-{
-public:
-  Runner_2e_pong(rclcpp::executor::Executor::SharedPtr e):
-      Runner(e) {
-      std::cout << "runner = 1e2n_pong" << std::endl;
-  }
-
-  void setup(const TwoWaysNodeOptions &tw_options) override {
-    rclcpp::NodeOptions node_options;
-    tw_options.set_node_options(node_options);
-    nsub_ = std::make_shared<TwoWaysNode>("main_sub_ping_pong", "ns", tw_options, node_options);
-
-    nsub_->setup_ping_subscriber(true);
-    exec_->add_node(nsub_);
-  }
-
-  void cleanup() override {
-    exec_->remove_node(nsub_);
-  }
-
-  void report() override {
-    nsub_->print_ping_sub_report();
-    nsub_->print_ping_callback_process_time_report();
-  }
-
-private:
-  std::shared_ptr<TwoWaysNode> nsub_;
-};
 
 std::unique_ptr<Runner>
 make_runner(RunType type, rclcpp::executor::Executor::SharedPtr e)
@@ -175,19 +16,19 @@ make_runner(RunType type, rclcpp::executor::Executor::SharedPtr e)
   std::unique_ptr<Runner> p(nullptr);
   switch(type) {
     case(E1N1): {
-      p.reset(new Runner_1e1n(e));
+      p.reset(new Runner_1e1n<TwoWaysNode>(e));
       break;
     }
     case(E1N2): {
-      p.reset(new Runner_1e2n(e));
+      p.reset(new Runner_1e2n<TwoWaysNode>(e));
       break;
     }
     case(E2_PING): {
-      p.reset(new Runner_2e_ping(e));
+      p.reset(new Runner_2e_ping<TwoWaysNode>(e));
       break;
     }
     case(E2_PONG): {
-      p.reset(new Runner_2e_pong(e));
+      p.reset(new Runner_2e_pong<TwoWaysNode>(e));
       break;
     }
   }
