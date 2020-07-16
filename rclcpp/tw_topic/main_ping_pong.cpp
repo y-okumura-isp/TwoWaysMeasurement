@@ -5,6 +5,8 @@
 #include <numeric>
 
 #include "../common/tw_utils.hpp"
+#include "../common/two_ways_node.hpp"
+#include "../common/threaded_two_ways_node.hpp""
 #include "main_ping_pong.hpp"
 
 const char * node_name = "one_node_ping_pong";
@@ -29,6 +31,22 @@ make_runner(RunType type, rclcpp::executor::Executor::SharedPtr e)
     }
     case(E2_PONG): {
       p.reset(new Runner_2e_pong<TwoWaysNode>(e));
+      break;
+    }
+    case(E1N1_THREADED): {
+      p.reset(new Runner_1e1n<ThreadedTwoWaysNode>(e));
+      break;
+    }
+    case(E1N2_THREADED): {
+      p.reset(new Runner_1e2n<ThreadedTwoWaysNode>(e));
+      break;
+    }
+    case(E2_PING_THREADED): {
+      p.reset(new Runner_2e_ping<ThreadedTwoWaysNode>(e));
+      break;
+    }
+    case(E2_PONG_THREADED): {
+      p.reset(new Runner_2e_pong<ThreadedTwoWaysNode>(e));
       break;
     }
   }

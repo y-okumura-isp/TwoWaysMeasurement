@@ -197,10 +197,10 @@ RunType TwoWaysNodeOptions::parse_run_type(const std::string &name)
     {"2e_ping", E2_PING},
     {"2e_pong", E2_PONG},
 
-    {"1e1n_threaded", E1N1},
-    {"1e2n_threaded", E1N2},
-    {"2e_ping_threaded", E2_PING},
-    {"2e_pong_threaded", E2_PONG},
+    {"1e1n_threaded", E1N1_THREADED},
+    {"1e2n_threaded", E1N2_THREADED},
+    {"2e_ping_threaded", E2_PING_THREADED},
+    {"2e_pong_threaded", E2_PONG_THREADED},
   };
 
   auto ret = name2type.find(name);
