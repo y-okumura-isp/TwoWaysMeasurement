@@ -37,6 +37,7 @@ TwoWaysNodeOptions::TwoWaysNodeOptions(int argc, char *argv[])
     {"static-executor", no_argument,            &use_static_executor,           TRUE},
     {"main-sched",      required_argument,      0,                              'm'},
     {"child-sched",     required_argument,      0,                              'c'},
+    {"callback-sched",  required_argument,      0,                              'b'},
     {"run-type",        required_argument,      0,                              't'},
     {"default-memory-strategy", no_argument,    0,                              's'},
     {0,                 0,                      0,                               0},
@@ -72,6 +73,10 @@ TwoWaysNodeOptions::TwoWaysNodeOptions(int argc, char *argv[])
         child_sched = get_schedule_policy(std::string(optarg));
         break;
       }
+      case('b'):{
+        callback_sched = get_schedule_policy(std::string(optarg));
+        break;
+      }
       case('t'): {
         run_type = parse_run_type(std::string(optarg));
         break;
@@ -100,6 +105,7 @@ TwoWaysNodeOptions::TwoWaysNodeOptions():
     sched_rrrr(0),
     main_sched(SCHED_POLICY::TS),
     child_sched(SCHED_POLICY::TS),
+    callback_sched(SCHED_POLICY::TS),
     sched_priority(98),
     sched_policy(SCHED_RR),
     run_type(E1N1),
@@ -146,9 +152,8 @@ rclcpp::executor::Executor::SharedPtr TwoWaysNodeOptions::get_executor()
   return std::make_shared<rclcpp::executors::SingleThreadedExecutor>(args);
 }
 
-void TwoWaysNodeOptions::get_sched(SCHED_POLICY sp, size_t &priority, int &policy)
+void TwoWaysNodeOptions::get_sched(SCHED_POLICY sp, size_t &priority, int &policy) const
 {
-
   switch(sp)
   {
     case(TS): {
@@ -166,6 +171,11 @@ void TwoWaysNodeOptions::get_sched(SCHED_POLICY sp, size_t &priority, int &polic
       policy = SCHED_RR;
       break;
     }
+    case(RR96): {
+      priority = 96;
+      policy = SCHED_RR;
+      break;
+    }
   }
 }
 
@@ -178,14 +188,17 @@ void TwoWaysNodeOptions::init_report_option(int bin, int round_ns, int num_skip)
 
 SCHED_POLICY TwoWaysNodeOptions::get_schedule_policy(const std::string &opt)
 {
-  if(opt == "RR98") {
-    return SCHED_POLICY::RR98;
-  } else if(opt == "RR97") {
-    return SCHED_POLICY::RR97;
-  } else if(opt == "TS") {
-    return SCHED_POLICY::TS;
+  std::map<std::string, SCHED_POLICY> name2policy = {
+    {"RR98",    SCHED_POLICY::RR98},
+    {"RR97",    SCHED_POLICY::RR97},
+    {"RR96",    SCHED_POLICY::RR96},
+    {"TS",      SCHED_POLICY::TS},
+  };
+  auto ret = name2policy.find(opt);
+  if(ret != name2policy.end()) {
+    return ret->second;
   } else {
-    throw std::invalid_argument("unknown policy: use RR98, RR97, TS");
+    throw std::invalid_argument("unknown run-type: RR98, RR97, RR96, TS");
   }
 }
 

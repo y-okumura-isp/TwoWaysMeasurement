@@ -4,7 +4,7 @@
 #include <typeinfo>
 
 #include <rclcpp/rclcpp.hpp>
-#include "../common/tw_node_options.hpp""
+#include "../common/tw_node_options.hpp"
 
 class Runner
 {

@@ -278,20 +278,31 @@ void ThreadedTwoWaysNode::setup_ping_publisher()
   std::cout << NUM_LOOPS   << ": " << num_loops << std::endl;
   std::cout << DEBUG_PRINT << ": " << (debug_print ? "true" : "false") << std::endl;
 
+  size_t priority = 0;
+  int policy = -1;
+  tw_options_.get_callback_thread_policy(priority, policy);
+
   ping_helper_ = std::make_unique<PingPublisherByTimer>(
       tw_options_,
       this, topic_name, qos,
-      period_ns, debug_print, num_loops);
+      period_ns, debug_print, num_loops,
+      priority, policy);
   this->ping_timer_ = ping_helper_->create_wall_timer(this, std::chrono::nanoseconds(period_ns));
 }
 
 void ThreadedTwoWaysNode::setup_ping_subscriber(bool send_pong)
 {
   auto debug_print = get_parameter(DEBUG_PRINT).get_value<bool>();
+
+  size_t priority = 0;
+  int policy = -1;
+  tw_options_.get_callback_thread_policy(priority, policy);
+
   ping_sub_helper_ = std::make_unique<PingSubscription>(
       tw_options_,
       this,
-      send_pong, debug_print);
+      send_pong, debug_print,
+      priority, policy);
   ping_sub_ = ping_sub_helper_->create_subscription(
       this,
       tw_options_.topic_name, tw_options_.qos);
@@ -299,9 +310,14 @@ void ThreadedTwoWaysNode::setup_ping_subscriber(bool send_pong)
 
 void ThreadedTwoWaysNode::setup_pong_subscriber()
 {
+  size_t priority = 0;
+  int policy = -1;
+  tw_options_.get_callback_thread_policy(priority, policy);
+
   pong_sub_helper_ = std::make_unique<PongSubscription>(
       tw_options_,
-      this);
+      this,
+      priority, policy);
   pong_sub_ = pong_sub_helper_->create_subscription(
       this,
       tw_options_.topic_name_pong, tw_options_.qos);

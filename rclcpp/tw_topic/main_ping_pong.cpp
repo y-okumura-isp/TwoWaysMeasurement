@@ -6,7 +6,7 @@
 
 #include "../common/tw_utils.hpp"
 #include "../common/two_ways_node.hpp"
-#include "../common/threaded_two_ways_node.hpp""
+#include "../common/threaded_two_ways_node.hpp"
 #include "main_ping_pong.hpp"
 
 const char * node_name = "one_node_ping_pong";

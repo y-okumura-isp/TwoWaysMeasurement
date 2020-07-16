@@ -37,6 +37,8 @@ struct JitterReportOptions
 enum SCHED_POLICY {
   RR98,
   RR97,
+  RR96,
+  // if you add new entry, modify get_sched and get_schedule_policy for the moment
   TS
 };
 
@@ -68,13 +70,18 @@ public:
   rclcpp::executor::Executor::SharedPtr get_executor();
 
   /// Get main thread policy
-  void get_main_thread_policy(size_t &priority, int &policy) {
+  void get_main_thread_policy(size_t &priority, int &policy) const {
     get_sched(main_sched, priority, policy);
   }
 
   /// Get child thread policy
-  void get_child_thread_policy(size_t &priority, int &policy) {
+  void get_child_thread_policy(size_t &priority, int &policy) const {
     get_sched(child_sched, priority, policy);
+  }
+
+  /// Get callback thrad policy
+  void get_callback_thread_policy(size_t &priority, int &policy) const {
+    get_sched(callback_sched, priority, policy);
   }
 
   // scheduler
@@ -82,6 +89,7 @@ public:
   int sched_rrrr;  // 0: false, 1: true
   SCHED_POLICY main_sched;
   SCHED_POLICY child_sched;
+  SCHED_POLICY callback_sched;
 
   size_t sched_priority;
   int sched_policy;
@@ -122,7 +130,7 @@ public:
 private:
   void init_report_option(int bin, int round_ns, int num_skip);
   // convert SCHED_POLICY to size_t and int.
-  void get_sched(SCHED_POLICY sp, size_t &priority, int &policy);
+  void get_sched(SCHED_POLICY sp, size_t &priority, int &policy) const;
   /// schedule option parser
   SCHED_POLICY get_schedule_policy(const std::string &opt);
   RunType parse_run_type(const std::string &type);
