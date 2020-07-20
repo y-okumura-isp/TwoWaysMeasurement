@@ -38,6 +38,7 @@ TwoWaysNodeOptions::TwoWaysNodeOptions(int argc, char *argv[])
     {"main-sched",      required_argument,      0,                              'm'},
     {"child-sched",     required_argument,      0,                              'c'},
     {"callback-sched",  required_argument,      0,                              'b'},
+    {"callback-cpuid",  required_argument,      0,                              'p'},
     {"run-type",        required_argument,      0,                              't'},
     {"default-memory-strategy", no_argument,    0,                              's'},
     {0,                 0,                      0,                               0},
@@ -77,6 +78,10 @@ TwoWaysNodeOptions::TwoWaysNodeOptions(int argc, char *argv[])
         callback_sched = get_schedule_policy(std::string(optarg));
         break;
       }
+      case('p'):{
+        callback_cpu_id = std::stoi(optarg);
+        break;
+      }
       case('t'): {
         run_type = parse_run_type(std::string(optarg));
         break;
@@ -106,6 +111,7 @@ TwoWaysNodeOptions::TwoWaysNodeOptions():
     main_sched(SCHED_POLICY::TS),
     child_sched(SCHED_POLICY::TS),
     callback_sched(SCHED_POLICY::TS),
+    callback_cpu_id(1),
     sched_priority(98),
     sched_policy(SCHED_RR),
     run_type(E1N1),

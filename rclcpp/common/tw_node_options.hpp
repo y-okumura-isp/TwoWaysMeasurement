@@ -84,12 +84,18 @@ public:
     get_sched(callback_sched, priority, policy);
   }
 
+  /// Get callback thread cpu_id
+  size_t get_callback_thread_cpu_id() const {
+    return callback_cpu_id;
+  }
+
   // scheduler
   int sched_rrts;  // 0: false, 1: true
   int sched_rrrr;  // 0: false, 1: true
   SCHED_POLICY main_sched;
   SCHED_POLICY child_sched;
   SCHED_POLICY callback_sched;
+  size_t callback_cpu_id;
 
   size_t sched_priority;
   int sched_policy;
