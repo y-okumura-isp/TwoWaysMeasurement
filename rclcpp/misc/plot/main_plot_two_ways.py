@@ -19,35 +19,7 @@ import re
 import numpy as np
 import matplotlib.pyplot as plt
 
-def get_round_ns_and_results(fname, target):
-    '''
-    fname: target log filename
-    target: result type such as wake-diff ping-pong
-    '''
-    with open(fname) as fp:
-	lines = fp.readlines()
-    lines = map(lambda l: l.rstrip(), lines)
-
-    # find target
-    line_target = -1
-    for i, line in enumerate(lines):
-	if re.match("{}$".format(target), line):
-	    print("{} found at {}".format(target, i))
-	    line_target = i
-
-    if line_target < 0:
-	raise Exception("target({0}) not found".format(target))
-
-    round_line = lines[line_target + 3]
-    match = re.search("round_ns = (\d+) ", round_line)
-    if not match:
-	raise Exception("cannot read round_ns")
-    round_ns = match.group(1)
-
-    result = lines[line_target + 4].lstrip()
-    result = result.split(",")
-    result = [int(x) for x in result if x]
-    return round_ns, result
+from common import get_round_ns_and_results
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='plot tw_tpoic result')
@@ -64,13 +36,13 @@ def plot_target_1e(files, target, pos):
     pos: graph position
     label: data label such as 1e1n
     '''
-    round_ns, data_1e1n = get_round_ns_and_results(files["1e1n"], target)
-    _, data_1e2n = get_round_ns_and_results(files["1e2n"], target)
+    round_ns, data_1e1n, ys= get_round_ns_and_results(files["1e1n"], target)
+    _, data_1e2n, _ = get_round_ns_and_results(files["1e2n"], target)
 
     plt.subplot(pos)
     plt.title(target)
-    plt.plot(data_1e1n, label="1e1n({})".format(np.sum(data_1e1n)))
-    plt.plot(data_1e2n, label="1e2n({})".format(np.sum(data_1e2n)))
+    plt.plot(ys, data_1e1n, label="1e1n({})".format(np.sum(data_1e1n)))
+    plt.plot(ys, data_1e2n, label="1e2n({})".format(np.sum(data_1e2n)))
     plt.yscale("log")
     plt.ylabel("frequency(log)")
     plt.xlabel("{} ns".format(round_ns))
@@ -81,15 +53,15 @@ def plot_target_2e(files, target, pos):
 
     round_ns = 0
     if target in ["diff_wakeup", "ping_wakeup", "ping_pong", "pong_sub", "timer_callback", "pong_callback"]:
-        round_ns, data_2e1c = get_round_ns_and_results(files["2e1c_ping"], target)
-        _, data_2e2c = get_round_ns_and_results(files["2e2c_ping"], target)
+        round_ns, data_2e1c, ys = get_round_ns_and_results(files["2e1c_ping"], target)
+        _, data_2e2c, _= get_round_ns_and_results(files["2e2c_ping"], target)
     elif target in ["ping_sub", "ping_callback"]:
-        round_ns, data_2e1c = get_round_ns_and_results(files["2e1c_pong"], target)
-        _, data_2e2c = get_round_ns_and_results(files["2e2c_pong"], target)
+        round_ns, data_2e1c, ys= get_round_ns_and_results(files["2e1c_pong"], target)
+        _, data_2e2c, _= get_round_ns_and_results(files["2e2c_pong"], target)
 
     plt.title(target)
-    plt.plot(data_2e1c, label="2e1c({})".format(np.sum(data_2e1c)))
-    plt.plot(data_2e2c, label="2e2c({})".format(np.sum(data_2e2c)))
+    plt.plot(ys, data_2e1c, label="2e1c({})".format(np.sum(data_2e1c)))
+    plt.plot(ys, data_2e2c, label="2e2c({})".format(np.sum(data_2e2c)))
 
     plt.yscale("log")
     plt.ylabel("frequency(log)")
