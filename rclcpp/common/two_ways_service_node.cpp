@@ -1,4 +1,4 @@
-#include <rttest/utils.h>
+#include <rttest/utils.hpp>
 #include "two_ways_service_node.hpp"
 
 using namespace std::chrono_literals;

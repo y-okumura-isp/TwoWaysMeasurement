@@ -1,5 +1,5 @@
 #include <rclcpp/strategies/message_pool_memory_strategy.hpp>
-#include <rttest/utils.h>
+#include <rttest/utils.hpp>
 
 #include "threaded_two_ways_node.hpp"
 
@@ -172,13 +172,13 @@ void PingSubscription::on_callback()
   }
 
   auto pong = MyMsg();
-  pong.time_sent_pong_ns = now_ns;
   pong.data = msg_.data;
   // pos-neg inversion
   for(size_t i=0; i< msg_.image.size(); i++) {
     pong.image[i] = 255 - msg_.image[i];
   }
-  pong.time_sent_ns = get_now_int64();
+  pong.time_sent_pong_ns = get_now_int64();
+  pong.time_sent_ns = msg_.time_sent_ns;
   pong_pub_->publish(pong);
 
   struct timespec time_exit;
