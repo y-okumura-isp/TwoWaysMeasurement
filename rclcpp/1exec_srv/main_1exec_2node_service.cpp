@@ -9,7 +9,16 @@ int main(int argc, char *argv[])
   std::cout << "Press C-c to quit" << std::endl;
 
   TwoWaysNodeOptions tw_options(argc, argv);
-  SET_REALTIME_SETTING_RRRR(tw_options);
+
+  if(lock_and_prefault_dynamic(tw_options.prefault_dynamic_size) < 0) {
+    std::cerr << "lock_and_prefault_dynamic failed" << std::endl;
+  }
+
+  // setup child process scheule
+  size_t priority = 0;
+  int policy = 0;
+  tw_options.get_child_thread_policy(priority, policy);
+  set_sched_priority("child", priority, policy);
 
   rclcpp::init(argc, argv);
   auto exec = tw_options.get_executor();
@@ -28,7 +37,11 @@ int main(int argc, char *argv[])
 
   exec->add_node(service_node);
   exec->add_node(client_node);
-  SET_REALTIME_SETTING_RRTS(tw_options);
+
+  // setup child process scheule
+  tw_options.get_main_thread_policy(priority, policy);
+  set_sched_priority("main", priority, policy);
+
   exec->spin();
   exec->remove_node(client_node);
   exec->remove_node(service_node);
