@@ -27,6 +27,7 @@ find_package(rttest)
 
 include_directories(../../)
 set(TW_COMMON
+  ../../common/tw_utils.cpp
   ../../common/tw_node_options.cpp
   setting.cpp
   )
