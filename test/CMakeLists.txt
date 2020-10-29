@@ -16,9 +16,15 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 find_package(ament_cmake_gtest REQUIRED)
+find_package(ament_cmake REQUIRED)
+find_package(rttest)
 ament_find_gtest()
 
 include_directories(../rclcpp/common)
+
+set(DEPENDS
+  rttest
+  )
 # add_executable(
 #   test_jitter_report
 #   test_jitter_report.cpp
@@ -28,3 +34,4 @@ include_directories(../rclcpp/common)
 ament_add_gtest(test_jitter_report
   test_jitter_report.cpp
   ../rclcpp/common/tw_utils.cpp)
+ament_target_dependencies(test_jitter_report ${DEPENDS})
